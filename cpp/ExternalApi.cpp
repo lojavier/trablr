@@ -224,7 +224,6 @@ void Trablr::get511ApiTransitStopMonitoring(struct mg_connection *nc, struct htt
                 if (prev.compare(next) != 0) {
                     prev = next;
                     AimedArrivalTimeVector.push_back(next);
-                    // printf("%s\n", next.c_str());
                 }
             }
         }
@@ -232,18 +231,21 @@ void Trablr::get511ApiTransitStopMonitoring(struct mg_connection *nc, struct htt
         printf("Error: ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit[] is empty\n");
     }
 
-    string json_result = "{";
+    string json_result = "{\"AimedArrivalTime\":[";
     for (uint i = 0; i < AimedArrivalTimeVector.size(); i++) {
-        std::cout << AimedArrivalTimeVector[i] << '\n';
-        json_result = json_result + "AimedArrivalTime_" + to_string(i) + "\":\"" + AimedArrivalTimeVector[i] + "\",";
+        if (i > 0) {
+            json_result += ",";
+        }
+        cout << AimedArrivalTimeVector[i] << '\n';
+        json_result += "\"" + AimedArrivalTimeVector[i] + "\"";
     }
-    json_result = json_result + "}";
+    json_result += "]}";
     cout << json_result << '\n';
 
     printf("line_id=%s stop_id_start=%s stop_id_end=%s\n", line_id, stopCode, stop_id_end);
     /* Compute the result and send it back as a JSON object */
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-    mg_printf_http_chunk(nc, "{ \"line_id_result\": %d, \"stop_id_start_result\": %d, \"stop_id_end_result\": %d }", atoi(line_id), atoi(stopCode), atoi(stop_id_end));
+    mg_printf_http_chunk(nc, json_result.c_str());
     mg_send_http_chunk(nc, "", 0);
 }
 
