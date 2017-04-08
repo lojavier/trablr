@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,11 +15,9 @@
 
 <body style="background-color :#F8F8F8">
 
-<?php
-require_once("config.php");
-?>
+<?php require_once("config.php"); ?>
 
-	<br><br><br>
+	<br>
 	<div class="row">
 	<div class="col-sm-2"></div>
 	<div class="col-sm-8"><h1>&nbsp;&nbsp;TRABLR - Getting from Point A to B</h1><br></div>
@@ -44,19 +41,17 @@ require_once("config.php");
 						<div class="form-group">
 							<div class="col-sm-12">
 							<select name="category" id="category" style="width:100%;height:33px;" ng-model="category_model" ng-init="category_model_fun()">
-							<option value="NULL">Select Start</option>
-					<?php 
-						$sql = "SELECT * FROM TRABLR_DB.TRANSIT_INFO;";
-						$result = mysql_query($sql,$con);
-						while($row = mysql_fetch_array($result)) {
-							$stop_id=$row['STOP_ID'];
-							$line_id=$row['LINE_ID'];
-							$stop_name=$row['STOP_NAME'];
-					?>
-							<option value="<?php echo $stop_id ?>"><?php echo $stop_name ?></option>
-					<?php
-						}
-					?>
+							<option value="-1">Select Start</option>
+
+					<?php 	$sql = "SELECT * FROM TRANSIT_INFO;";
+							$result = mysqli_query($con,$sql);
+							while($row = mysqli_fetch_array($result)) {
+								$stop_id=$row['STOP_ID'];
+								$line_id=$row['LINE_ID'];
+								$stop_name=$row['STOP_NAME']; ?>
+								<option value="<?php echo $row['STOP_ID']; ?>"><?php echo $row['LINE_ID']." - ".$row['STOP_NAME']." (".$row['STOP_ID'].")"; ?></option>
+					<?php  	} ?>
+
 							</select>
 							</div>
 						</div>
@@ -64,10 +59,17 @@ require_once("config.php");
 						<div class="form-group">
 							<div class="col-sm-12">
 							<select name="category" id="category" style="width:100%;height:33px;" ng-model="category_model" ng-init="category_model_fun()">
-							<option value="NIL">Select Destination</option>
-							<option value="Entire Home">Alameda</option>
-							<option value="Private Room">San Jose</option>
-							<option value="Shared Room">Palo Alto</option>
+							<option value="-1">Select Destination</option>
+
+					<?php 	$sql = "SELECT * FROM TRANSIT_INFO;";
+							$result = mysqli_query($con,$sql);
+							while($row = mysqli_fetch_array($result)) {
+								$stop_id=$row['STOP_ID'];
+								$line_id=$row['LINE_ID'];
+								$stop_name=$row['STOP_NAME']; ?>
+								<option value="<?php echo $row['STOP_ID']; ?>"><?php echo $row['LINE_ID']." - ".$row['STOP_NAME']." (".$row['STOP_ID'].")"; ?></option>
+					<?php  	} ?>
+
 							</select>
 							</div>
 						</div>
