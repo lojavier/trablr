@@ -10,12 +10,18 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>	
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+
+	<script src="js/main.js"></script>
 </head>
 
 <body style="background-color :#F8F8F8">
 
-<?php require_once("config.php"); ?>
+<?php 
+require_once("config.php");
+
+$USER_ID=1;
+?>
 
 	<br>
 	<div class="row">
@@ -31,8 +37,7 @@
 		<div class="col-sm-4" > 
 				<div class="panel panel-success">
 					<div class="panel-heading" style="font-size:150%;">
-						<strong>Transit </strong> 
-						
+						<strong>Transit</strong> 
 					</div>
 					<div class="panel-body" style="height:180px"> <!--INNER PANEL BODY-->
 
@@ -45,10 +50,7 @@
 
 					<?php 	$sql = "SELECT * FROM TRANSIT_INFO;";
 							$result = mysqli_query($con,$sql);
-							while($row = mysqli_fetch_array($result)) {
-								$stop_id=$row['STOP_ID'];
-								$line_id=$row['LINE_ID'];
-								$stop_name=$row['STOP_NAME']; ?>
+							while($row = mysqli_fetch_array($result)) { ?>
 								<option value="<?php echo $row['STOP_ID']; ?>"><?php echo $row['LINE_ID']." - ".$row['STOP_NAME']." (".$row['STOP_ID'].")"; ?></option>
 					<?php  	} ?>
 
@@ -63,10 +65,7 @@
 
 					<?php 	$sql = "SELECT * FROM TRANSIT_INFO;";
 							$result = mysqli_query($con,$sql);
-							while($row = mysqli_fetch_array($result)) {
-								$stop_id=$row['STOP_ID'];
-								$line_id=$row['LINE_ID'];
-								$stop_name=$row['STOP_NAME']; ?>
+							while($row = mysqli_fetch_array($result)) { ?>
 								<option value="<?php echo $row['STOP_ID']; ?>"><?php echo $row['LINE_ID']." - ".$row['STOP_NAME']." (".$row['STOP_ID'].")"; ?></option>
 					<?php  	} ?>
 
@@ -99,21 +98,31 @@
 		<div class="col-sm-4" > 
 				<div class="panel panel-warning">
 					<div class="panel-heading" style="font-size:150%;">
-						<strong>Favorites </strong> 
-						
+						<strong>Favorites</strong> 
 					</div>
 					<div class="panel-body" style="height:180px"> <!--INNER PANEL BODY-->
 						<div class="col-sm-12">
 							<br>
-							<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" ng-click="gotocheckout();"><strong>Route 1 (default)</strong></button>
-							<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" ng-click="gotocheckout();"><strong>Route 2</strong></button>
-							<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" ng-click="gotocheckout();"><strong>Route 3</strong></button>
-							<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" ng-click="gotocheckout();"><strong>Route 4</strong></button>
+				<?php 	$sql = "SELECT UF.*,TI.*
+								FROM USER_FAVORITES AS UF
+								LEFT JOIN TRANSIT_INFO AS TI
+								ON UF.STOP_ID_START=TI.STOP_ID
+								WHERE UF.USER_ID=$USER_ID ORDER BY UF.PRIORITY ASC;";
+						$result = mysqli_query($con,$sql);
+						while($row = mysqli_fetch_array($result)) { ?>
+							<!-- <button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" ng-click="gotocheckout();" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button> -->
+
+							<input type="text" id="line_id" value="<?php echo $row['LINE_ID']; ?>" hidden>
+							<input type="text" id="stop_id_start" value="<?php echo $row['STOP_ID_START']; ?>" hidden>
+							<input type="text" id="stop_id_end" value="<?php echo $row['STOP_ID_END']; ?>" hidden>
+							<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
+							<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit">EXIT</button>
+				<?php	} ?>
 						</div>
-					</div> <!--INNER PANEL BODY-->	
+					</div> <!--INNER PANEL BODY-->
 
 				</div><!--panel panel-default-->
-		</div> 
+		</div>
 		
 		<div class="col-sm-2"> </div> 
 	</div> <!--FIRST ROW -->
@@ -126,10 +135,20 @@
 		<div class="col-sm-8" > 
 				<div class="panel panel-primary">
 					<div class="panel-heading" style="font-size:150%;">
-						<strong>Information </strong> 
-						
+						<strong>Information</strong> 
 					</div>
 					<div class="panel-body"> <!--INNER PANEL BODY-->
+						<div class="col-sm-12" style="font-size:150%;"><span id="json_result">&nbsp;</span></div>
+						<div class="col-sm-12" style="font-size:150%;" id="json_result">&nbsp;</div>
+						<div>
+				        <label>Line ID:</label> <span id="line_id_result">&nbsp;</span>
+				      </div><div>
+				        <label>Stop ID (START):</label> <span id="stop_id_start_result">&nbsp;</span>
+				      </div><div>
+				        <label>Stop ID (END):</label> <span id="stop_id_end_result">&nbsp;</span>
+				      </div>
+
+
 						<div class="col-sm-12" style="font-size:150%;">Source: Alameda</div>
 						<div class="col-sm-12" style="font-size:150%;">Destination: San Jose</div>
 						<div class="col-sm-12" style="font-size:150%;">Next Bus @: 3:21pm</div>

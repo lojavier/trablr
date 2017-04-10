@@ -23,6 +23,9 @@
                         stop_id_end: $('#stop_id_end').val() 
                 },
                 success: function(json) {
+                    var temp = json;
+                    alert("SUCCESS");
+                    $('#json_result').html(temp);
                     $('#line_id_result').html(json.line_id_result);
                     $('#stop_id_start_result').html(json.stop_id_start_result);
                     $('#stop_id_end_result').html(json.stop_id_end_result);
@@ -89,7 +92,7 @@ body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", Arial, Helvetica, sans-serif}
       </div><div>
         <label>Stop ID (END):</label> <input type="text" id="stop_id_end" value="65396">
       </div><div>
-        <label>Result:</label> <span id="result">&nbsp;</span>
+        <label>Result:</label> <span id="json_result">&nbsp;</span>
       </div><div>
         <label>Line ID:</label> <span id="line_id_result">&nbsp;</span>
       </div><div>
