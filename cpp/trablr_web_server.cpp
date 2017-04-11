@@ -3,7 +3,7 @@ using namespace std;
 
 // #define DAEMON_NAME     "Trablr Web Server"
 
-static const char *s_http_port = "8000";
+static const char *s_http_port = "8080";
 static struct mg_serve_http_opts s_http_server_opts;
 static int s_sig_num = 0;
 
@@ -52,10 +52,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                 key.p = hm->uri.p + api_prefix.len;
                 key.len = hm->uri.len - api_prefix.len;
                 if (mg_vcmp(&key, "/get_stop_monitoring") == 0) {
+                    printf("/get_stop_monitoring\n");
                     Trablr trablr;
                     trablr.get511ApiTransitStopMonitoring(nc, hm);
-                    printf("get_route\n");
-                    // nc->keep_alive = TRUE;
                 } 
                 else if (mg_vcmp(&hm->uri, "/show_time") == 0) {
                     printf("show_time\n");
