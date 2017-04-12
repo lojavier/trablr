@@ -1,83 +1,131 @@
-function jsonpCallback(data){
-    alert('SUCCESS');
-}
-
-// jQuery(function() {
-//     var timeoutId = null;
-//     jQuery('#exit').hide();
-//     var get_stop_monitoring = function () {
-//         $.ajax({
-//             url: 'http://127.0.0.1:8080/api/v1/get_stop_monitoring',
-//             method: 'GET',
-//             dataType: 'jsonp',
-//             jsonp: 'callback',
-//             jsonpCallback: 'jsonpCallback',
-//             data: { line_id: $('#line_id').val(), 
-//                     stop_id_start: $('#stop_id_start').val(), 
-//                     stop_id_end: $('#stop_id_end').val()
-//             },
-//             success: function(json) {
-//             	alert('SUCCESS');
-//             	// $('#json_result').html(json);
-//             	// $('#json_result').html("SUCCESS");
-//                 // $('#line_id_result').html(json.line_id_result);
-//                 // $('#stop_id_start_result').html(json.stop_id_start_result);
-//                 // $('#stop_id_end_result').html(json.stop_id_end_result);
-//             },
-//             complete: function() {
-//                 jQuery('#get_stop_monitoring').hide();
-//                 jQuery('#exit').show();
-//                 timeoutId = setTimeout(get_stop_monitoring, 30000);
-//             }
-//         });
-//     }
-//     $(document).on('click', '#get_stop_monitoring', get_stop_monitoring);
-
-//     var exit = function () {
-//         clearTimeout(timeoutId);
-//         jQuery('#exit').hide();
-//         jQuery('#get_stop_monitoring').show();
-//     }
-//     $(document).on('click', '#exit', exit);
-// });
-
-
 jQuery(function() {
     var timeoutId = null;
-    jQuery('#exit').hide();
-    var get_stop_monitoring = function () {
+    jQuery('#exit_1').hide();
+    jQuery('#exit_2').hide();
+    jQuery('#exit_3').hide();
+    jQuery('#exit_4').hide();
+
+    var get_stop_monitoring_1 = function () {
         $.ajax({
             url: 'http://127.0.0.1:8080/api/v1/get_stop_monitoring',
             type: 'POST',
             dataType: 'json',
-            data: { line_id: $('#line_id').val(), 
-                    stop_id_start: $('#stop_id_start').val(), 
-                    stop_id_end: $('#stop_id_end').val()
+            data: { line_id: $('#line_id_1').val(), 
+                    stop_id_start: $('#stop_id_start_1').val(), 
+                    stop_id_end: $('#stop_id_end_1').val()
             },
             success: function(json) {
-            	// $('#json_result').html("SUCCESS");
-                $('#line_id_result').html(json.line_id_result);
-                $('#stop_id_start_result').html(json.stop_id_start_result);
-                $('#stop_id_end_result').html(json.stop_id_end_result);
-             //    var json_x = $.parseJSON(json);
-            	// $('#json_result').html(json_x);
-        	 	$.each(json, function(index, element) {
-        	 		$('#json_result').html(element.name);
-        	 	});
+				var data = "";
+				for (var i = 0; i < json.AimedArrivalTime.length; i++) {
+					data += json.AimedArrivalTime[i] + " \n"
+				}
+            	$('#json_result').html(data);
             },
             complete: function() {
-                jQuery('#get_stop_monitoring').hide();
-                jQuery('#exit').show();
-                timeoutId = setTimeout(get_stop_monitoring, 30000);
+                jQuery('#get_stop_monitoring_1').hide();
+                jQuery('#exit_1').show();
+                timeoutId = setTimeout(get_stop_monitoring_1, 30000);
             }
         });
     }
-    $(document).on('click', '#get_stop_monitoring', get_stop_monitoring);
-
-    var exit = function () {
-        clearTimeout(timeoutId);
-        jQuery('#exit').hide();
-        jQuery('#get_stop_monitoring').show();
+    var get_stop_monitoring_2 = function () {
+        $.ajax({
+            url: 'http://127.0.0.1:8080/api/v1/get_stop_monitoring',
+            type: 'POST',
+            dataType: 'json',
+            data: { line_id: $('#line_id_2').val(), 
+                    stop_id_start: $('#stop_id_start_2').val(), 
+                    stop_id_end: $('#stop_id_end_2').val()
+            },
+            success: function(json) {
+				var data = "";
+				for (var i = 0; i < json.AimedArrivalTime.length; i++) {
+					data += json.AimedArrivalTime[i] + " \n"
+				}
+            	$('#json_result').html(data);
+            },
+            complete: function() {
+                jQuery('#get_stop_monitoring_2').hide();
+                jQuery('#exit_2').show();
+                timeoutId = setTimeout(get_stop_monitoring_2, 30000);
+            }
+        });
     }
-    $(document).on('click', '#exit', exit);
+    var get_stop_monitoring_3 = function () {
+        $.ajax({
+            url: 'http://127.0.0.1:8080/api/v1/get_stop_monitoring',
+            type: 'POST',
+            dataType: 'json',
+            data: { line_id: $('#line_id_3').val(), 
+                    stop_id_start: $('#stop_id_start_3').val(), 
+                    stop_id_end: $('#stop_id_end_3').val()
+            },
+            success: function(json) {
+				var data = "";
+				for (var i = 0; i < json.AimedArrivalTime.length; i++) {
+					data += json.AimedArrivalTime[i] + " \n"
+				}
+            	$('#json_result').html(data);
+            },
+            complete: function() {
+                jQuery('#get_stop_monitoring_3').hide();
+                jQuery('#exit_3').show();
+                timeoutId = setTimeout(get_stop_monitoring_3, 30000);
+            }
+        });
+    }
+    var get_stop_monitoring_4 = function () {
+        $.ajax({
+            url: 'http://127.0.0.1:8080/api/v1/get_stop_monitoring',
+            type: 'POST',
+            dataType: 'json',
+            data: { line_id: $('#line_id_4').val(), 
+                    stop_id_start: $('#stop_id_start_4').val(), 
+                    stop_id_end: $('#stop_id_end_4').val()
+            },
+            success: function(json) {
+				var data = "";
+				for (var i = 0; i < json.AimedArrivalTime.length; i++) {
+					data += json.AimedArrivalTime[i] + " \n"
+				}
+            	$('#json_result').html(data);
+            },
+            complete: function() {
+                jQuery('#get_stop_monitoring_4').hide();
+                jQuery('#exit_4').show();
+                timeoutId = setTimeout(get_stop_monitoring_4, 30000);
+            }
+        });
+    }
+
+    $(document).on('click', '#get_stop_monitoring_1', get_stop_monitoring_1);
+    $(document).on('click', '#get_stop_monitoring_2', get_stop_monitoring_2);
+    $(document).on('click', '#get_stop_monitoring_3', get_stop_monitoring_3);
+    $(document).on('click', '#get_stop_monitoring_4', get_stop_monitoring_4);
+
+    var exit_1 = function () {
+        clearTimeout(timeoutId);
+        jQuery('#exit_1').hide();
+        jQuery('#get_stop_monitoring_1').show();
+    }
+    var exit_2 = function () {
+        clearTimeout(timeoutId);
+        jQuery('#exit_2').hide();
+        jQuery('#get_stop_monitoring_2').show();
+    }
+    var exit_3 = function () {
+        clearTimeout(timeoutId);
+        jQuery('#exit_3').hide();
+        jQuery('#get_stop_monitoring_3').show();
+    }
+    var exit_4 = function () {
+        clearTimeout(timeoutId);
+        jQuery('#exit_4').hide();
+        jQuery('#get_stop_monitoring_4').show();
+    }
+
+    $(document).on('click', '#exit_1', exit_1);
+    $(document).on('click', '#exit_2', exit_2);
+    $(document).on('click', '#exit_3', exit_3);
+    $(document).on('click', '#exit_4', exit_4);
 });

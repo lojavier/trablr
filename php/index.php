@@ -68,7 +68,7 @@ $USER_ID=1;
 							$result = mysqli_query($con,$sql);
 							while($row = mysqli_fetch_array($result)) { ?>
 								<option value="<?php echo $row['STOP_ID']; ?>"><?php echo $row['LINE_ID']." - ".$row['STOP_NAME']." (".$row['STOP_ID'].")"; ?></option>
-					<?php  	} ?>
+					<?php 	} ?>
 
 							</select>
 							</div>
@@ -103,22 +103,26 @@ $USER_ID=1;
 					</div>
 					<div class="panel-body" style="height:180px"> <!--INNER PANEL BODY-->
 						<div class="col-sm-12">
-							<br>
 				<?php 	$sql = "SELECT UF.*,TI.*
 								FROM USER_FAVORITES AS UF
 								LEFT JOIN TRANSIT_INFO AS TI
 								ON UF.STOP_ID_START=TI.STOP_ID
 								WHERE UF.USER_ID=$USER_ID ORDER BY UF.PRIORITY ASC;";
 						$result = mysqli_query($con,$sql);
-						while($row = mysqli_fetch_array($result)) { ?>
+						$j = 0;
+						while($row = mysqli_fetch_array($result)) {
+							$j++; ?>
 							<!-- <button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" ng-click="gotocheckout();" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button> -->
 
-							<input type="text" id="line_id" value="<?php echo $row['LINE_ID']; ?>" hidden>
-							<input type="text" id="stop_id_start" value="<?php echo $row['STOP_ID_START']; ?>" hidden>
-							<input type="text" id="stop_id_end" value="<?php echo $row['STOP_ID_END']; ?>" hidden>
-							<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
-							<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit">EXIT</button>
-				<?php	} ?>
+							<input type="text" id="line_id_<?php echo $j; ?>" value="<?php echo $row['LINE_ID']; ?>" hidden>
+							<input type="text" id="stop_id_start_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>" hidden>
+							<input type="text" id="stop_id_end_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_END']; ?>" hidden>
+							<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
+							<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_<?php echo $j; ?>">EXIT</button>
+				<?php 	}
+						for ($i = $j; $i < 4; $i++) { ?>
+					 		<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" value="-1"><strong>EMPTY</strong></button>
+				<?php 	} ?>
 						</div>
 					</div> <!--INNER PANEL BODY-->
 
@@ -141,14 +145,6 @@ $USER_ID=1;
 					<div class="panel-body"> <!--INNER PANEL BODY-->
 						<div class="col-sm-12" style="font-size:150%;"><span id="json_result">&nbsp;</span></div>
 						<div class="col-sm-12" style="font-size:150%;" id="json_result">&nbsp;</div>
-						<div>
-				        <label>Line ID:</label> <span id="line_id_result">&nbsp;</span>
-				      </div><div>
-				        <label>Stop ID (START):</label> <span id="stop_id_start_result">&nbsp;</span>
-				      </div><div>
-				        <label>Stop ID (END):</label> <span id="stop_id_end_result">&nbsp;</span>
-				      </div>
-
 
 						<div class="col-sm-12" style="font-size:150%;">Source: Alameda</div>
 						<div class="col-sm-12" style="font-size:150%;">Destination: San Jose</div>

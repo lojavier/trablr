@@ -190,8 +190,8 @@ void Trablr::get511ApiTransitStopMonitoring(struct mg_connection *nc, struct htt
     mg_get_http_var(&hm->body, "stop_id_end", stop_id_end, sizeof(stop_id_end));
     string api_prefix = "/transit/StopMonitoring";
     string agency = "VTA";
-    strncpy(line_id, "60", sizeof(line_id));
-    strncpy(stopCode, "60824", sizeof(stopCode));
+    // strncpy(line_id, "60", sizeof(line_id));
+    // strncpy(stopCode, "60824", sizeof(stopCode));
     string API_REQUEST_URL = host_name + api_prefix
                             + "?api_key=" + api_key
                             + "&agency=" + agency
@@ -238,6 +238,10 @@ void Trablr::get511ApiTransitStopMonitoring(struct mg_connection *nc, struct htt
             json_result += ",";
         }
         cout << AimedArrivalTimeVector[i] << '\n';
+        struct tm tm;
+        strptime(AimedArrivalTimeVector[i].c_str(), "%FT%TZ", &tm);
+        time_t t = mktime(&tm);
+        cout << "t = " << t << '\n';
         json_result += "\"" + AimedArrivalTimeVector[i] + "\"";
     }
     json_result += "]}";
@@ -246,8 +250,8 @@ void Trablr::get511ApiTransitStopMonitoring(struct mg_connection *nc, struct htt
     printf("line_id=%s stop_id_start=%s stop_id_end=%s\n", line_id, stopCode, stop_id_end);
     /* Compute the result and send it back as a JSON object */
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-    // mg_printf_http_chunk(nc, json_result.c_str());
-    mg_printf_http_chunk(nc, "{ \"line_id_result\": %d, \"stop_id_start_result\": %d, \"stop_id_end_result\": %d }", atoi(line_id), atoi(stopCode), atoi(stop_id_end));
+    mg_printf_http_chunk(nc, json_result.c_str());
+    // mg_printf_http_chunk(nc, "{ \"line_id_result\": %d, \"stop_id_start_result\": %d, \"stop_id_end_result\": %d }", atoi(line_id), atoi(stopCode), atoi(stop_id_end));
     mg_send_http_chunk(nc, "", 0);
 }
 
