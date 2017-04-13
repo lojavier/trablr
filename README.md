@@ -16,4 +16,4 @@ git clone git@github.com:miloyip/rapidjson.git
 
 Trouble shooting:
 There might be some missing packages.
-sudo apt-get install -y curl libcurl3 libcurl4-gnutls-dev
+sudo apt-get install -y curl libcurl3 libcurl4-gnutls-dev php5-cgi
