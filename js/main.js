@@ -53,3 +53,17 @@ jQuery(function() {
 	    $('#get_stop_monitoring_'+id).click( function(){get_stop_monitoring(id);} );
 	}
 });
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    ev.target.appendChild(document.getElementById(data));
+}

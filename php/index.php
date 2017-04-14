@@ -49,6 +49,37 @@ $USER_ID=1;
 							<select name="category" id="category" style="width:100%;height:33px;" ng-model="category_model" ng-init="category_model_fun()">
 							<option value="-1">Select Start</option>
 
+							<!-- $sql = "SELECT UF.*,TI.*
+								FROM USER_FAVORITES AS UF
+								LEFT JOIN TRANSIT_INFO AS TI
+								ON UF.STOP_ID_START=TI.STOP_ID
+								WHERE UF.USER_ID=$USER_ID ORDER BY UF.PRIORITY ASC;"; -->
+					<?php 	
+							// $sql = "SELECT DISTINCT A.LINE_ID,A.ROUTE_NAME,A.DIRECTION FROM TRANSIT_INFO AS A
+							// 	JOIN (SELECT * FROM TRANSIT_INFO GROUP BY TRANSIT_ID) AS B
+							// 	ON 	B.LINE_ID=A.LINE_ID
+							// 	AND B.ROUTE_NAME=A.ROUTE_NAME
+							// 	AND B.DIRECTION=A.DIRECTION
+							// 	ORDER BY A.LINE_ID ASC, A.DIRECTION ASC;";
+
+							$sql = "SELECT A.TRANSIT_ID,A.LINE_ID,A.ROUTE_NAME,A.DIRECTION FROM TRANSIT_INFO AS A
+								JOIN (SELECT DISTINCT LINE_ID,ROUTE_NAME,DIRECTION FROM TRANSIT_INFO GROUP BY LINE_ID) AS B
+								ON 	B.LINE_ID=A.LINE_ID
+								AND B.ROUTE_NAME=A.ROUTE_NAME
+								AND B.DIRECTION=A.DIRECTION
+								ORDER BY A.LINE_ID ASC, A.DIRECTION ASC;";
+							$result = mysqli_query($con,$sql);
+							while($row = mysqli_fetch_array($result)) { ?>
+								<option value="<?php echo $row['TRANSIT_ID']; ?>"><?php echo $row['LINE_ID']." - ".$row['ROUTE_NAME']." (".$row['DIRECTION'].")"; ?></option>
+					<?php  	} ?>
+
+							</select>
+							</div>
+
+							<div class="col-sm-12">
+							<select name="category" id="category" style="width:100%;height:33px;" ng-model="category_model" ng-init="category_model_fun()">
+							<option value="-1">Select Start</option>
+
 					<?php 	$sql = "SELECT * FROM TRANSIT_INFO;";
 							$result = mysqli_query($con,$sql);
 							while($row = mysqli_fetch_array($result)) { ?>
