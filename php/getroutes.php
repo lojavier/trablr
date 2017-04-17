@@ -4,6 +4,10 @@
 </head>
 <body>
 
+<script type="text/javascript">
+	alert("ALMOST");
+</script>
+
 <?php
 require_once("config.php");
 

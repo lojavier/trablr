@@ -12,6 +12,7 @@ jQuery(function() {
                     stop_id_end: $('#stop_id_end_'+id).val()
             },
             success: function(json) {
+            	alert("success");
 				var data = "";
 				for (var i = 0; i < json.AimedArrivalTime.length; i++) {
 					var ArrivalTime = json.AimedArrivalTime[i].ArrivalTime;
@@ -23,11 +24,12 @@ jQuery(function() {
 					$('#arrival_time_'+(i+1)).html(data);
 				}
             	// $('#json_result').html(JSON.stringify(json));
-            	for (let j = 1; j <= favoriteRoutes; j++) {
+            	for (let j = 0; j <= favoriteRoutes; j++) {
             		$('#get_stop_monitoring_'+j).attr("disabled", true);
             	}
             },
             complete: function() {
+            	alert("complete");
                 jQuery('#get_stop_monitoring_'+id).hide();
                 jQuery('#exit_'+id).show();
                 timeoutId = setTimeout(function(){get_stop_monitoring(id);}, 60000);
@@ -42,39 +44,44 @@ jQuery(function() {
         clearTimeout(timeoutId);
         jQuery('#exit_'+id).hide();
         jQuery('#get_stop_monitoring_'+id).show();
-        for (let j = 1; j <= favoriteRoutes; j++) {
+        for (let j = 0; j <= favoriteRoutes; j++) {
 	        $('#get_stop_monitoring_'+j).attr("disabled", false);
     	}
     }
 
-	for (let id = 1; id <= favoriteRoutes; id++) {
+	for (let id = 0; id <= favoriteRoutes; id++) {
     	jQuery('#exit_'+id).hide();
 	    $('#exit_'+id).click( function(){exit(id);} );
 	    $('#get_stop_monitoring_'+id).click( function(){get_stop_monitoring(id);} );
 	}
 });
 
-function getRoutes(value) {
-	alert("getRoutes");
-	var line_id = value.split(",")[0];
-    var direction = value.split(",")[1];
-
-    $.ajax({
-        url: 'http://127.0.0.1:80/getroutes.php',
-        type: 'GET',
-        data: 'line_id='+line_id+'&direction='+direction,
-        success: function(data) {
-        	alert("success");
-        	document.getElementById("search_start_route").innerHTML = data;
-        },
-        complete: function() {
-        	alert("complete");
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-			alert("ERROR");
-		}
-    });
+function test(id) {
+	alert(id);
+    get_stop_monitoring(id);
 }
+
+// function getRoutes(value) {
+// 	alert("getRoutes");
+// 	var line_id = value.split(",")[0];
+//     var direction = value.split(",")[1];
+
+//     $.ajax({
+//         url: 'http://127.0.0.1/getroutes.php',
+//         type: 'GET',
+//         data: 'line_id='+line_id+'&direction='+direction,
+//         success: function(data) {
+//         	alert("success");
+//         	document.getElementById("search_start_route").innerHTML = data;
+//         },
+//         complete: function() {
+//         	alert("complete");
+//         },
+//         error: function(XMLHttpRequest, textStatus, errorThrown) {
+// 			alert("ERROR");
+// 		}
+//     });
+// }
 
 // function routeCallback(data) {
 // 	alert("routeCallback");
