@@ -168,44 +168,43 @@ $USER_ID=1;
 									<option value="-1">Select Start</option>
 					<?php 	} ?>
 							</select>
-							</form>
-							</div>
+							</form							</div>
 						</div>
 
 					</form>
 
-					<form class="form-horizontal" role="form">
+					<!-- <form class="form-horizontal" role="form"> -->
 						
-						<div class="form-group">
+						<div class="col-sm-4">
 							<div class="col-sm-12">
 					<?php 	if($START_ROUTE) { ?>
+								<br>
 								<input type="text" id="line_id_0" value="<?php echo $line_id; ?>" hidden>
 								<input type="text" id="stop_id_start_0" value="<?php echo $start_id; ?>" hidden>
 								<input type="text" id="stop_id_end_0" value="<?php echo $end_id; ?>" hidden>
-								<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_0" value="<?php echo $start_id; ?>"><strong><?php echo $start_id." -> ".$end_id; ?></strong></button>
+								<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_0" value="<?php echo $start_id; ?>"><strong><?php echo $start_id." -> ".$end_id; ?></strong></button>
 								<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_0">EXIT</button>
-								<script>
-									setTimeout(function() { get_stop_monitoring(0); }, 000);
-									(function($) {
-								    	$(document).ready(function() {
-								        	get_stop_monitoring(0);
-								    	});
-									})(jQuery);​
-								</script>
+
+								<!-- <script>
+									$(function() {
+										$('#get_stop_monitoring_0').click();
+										$('#get_stop_monitoring_0').one('click', function() {});
+									});
+								</script> -->
 					<?php	} ?>
 								<!-- <button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto;" ng-click="signinsubmit();"><strong>Route</strong></button> -->
 						
-								<div class="btn-group">
+								<!-- <div class="btn-group"> -->
 								  <!-- <button type="button" class="btn btn-success">Route Now!</button> -->
 								  <!-- <button type="button" class="btn btn-primary">Add as Route1</button>
 								  <button type="button" class="btn btn-primary">Add as Route2</button>
 								  <button type="button" class="btn btn-primary">Add as Route3</button>
 								  <button type="button" class="btn btn-primary">Add as Route4</button> -->
-								</div>
+								<!-- </div> -->
 							</div>
 						</div>
 					
-					</form>
+					<!-- </form> -->
 
 					</div> <!--INNER PANEL BODY-->	
 
@@ -233,7 +232,7 @@ $USER_ID=1;
 							<input type="text" id="line_id_<?php echo $j; ?>" value="<?php echo $row['LINE_ID']; ?>" hidden>
 							<input type="text" id="stop_id_start_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>" hidden>
 							<input type="text" id="stop_id_end_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_END']; ?>" hidden>
-							<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
+							<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
 							<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_<?php echo $j; ?>">EXIT</button>
 
 				<?php 	}
@@ -279,14 +278,14 @@ $USER_ID=1;
 		<div class="col-sm-2"> </div> 
 	</div> <!--SECOND ROW -->
 
-	<?php 	if($START_ROUTE) { ?>
+	<!-- <?php 	if($START_ROUTE) { ?>
 								<input type="text" id="line_id_0" value="<?php echo $line_id; ?>" hidden>
 								<input type="text" id="stop_id_start_0" value="<?php echo $start_id; ?>" hidden>
 								<input type="text" id="stop_id_end_0" value="<?php echo $end_id; ?>" hidden>
 								<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_0" value="<?php echo $start_id; ?>"><strong><?php echo $start_id." -> ".$end_id; ?></strong></button>
 								<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_0">EXIT</button>
 								<script>test(0);</script>
-					<?php	} ?>
+					<?php	} ?> -->
 
 </body>
 </html>

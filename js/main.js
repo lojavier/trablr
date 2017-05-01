@@ -1,4 +1,5 @@
 jQuery(function() {
+    setTimeout(function(){}, 1000);
 	var favoriteRoutes = $('[id^=get_stop_monitoring_]').length;
     var timeoutId = null;
 
@@ -12,7 +13,7 @@ jQuery(function() {
                     stop_id_end: $('#stop_id_end_'+id).val()
             },
             success: function(json) {
-            	alert("success");
+            	// alert("success");
 				var data = "";
 				for (var i = 0; i < json.AimedArrivalTime.length; i++) {
 					var ArrivalTime = json.AimedArrivalTime[i].ArrivalTime;
@@ -29,7 +30,7 @@ jQuery(function() {
             	}
             },
             complete: function() {
-            	alert("complete");
+            	// alert("complete");
                 jQuery('#get_stop_monitoring_'+id).hide();
                 jQuery('#exit_'+id).show();
                 timeoutId = setTimeout(function(){get_stop_monitoring(id);}, 60000);
@@ -57,7 +58,7 @@ jQuery(function() {
 });
 
 function test(id) {
-	alert(id);
+	alert('test: '+id);
     get_stop_monitoring(id);
 }
 
