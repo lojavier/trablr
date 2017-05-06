@@ -15,7 +15,7 @@
         jQuery('#exit').hide();
         var get_stop_monitoring = function () {
             $.ajax({
-                url: 'http://127.0.0.1:8000/api/v1/get_stop_monitoring',
+                url: 'http://127.0.0.1:8000/api/511/get_stop_monitoring',
                 method: 'POST',
                 dataType: 'json',
                 data: { line_id: $('#line_id').val(), 

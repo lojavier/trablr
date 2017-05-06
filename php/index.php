@@ -60,7 +60,7 @@ if(isset($_GET['route']) && $_GET['route']!=-1) {
 
 $USER_ID=1;
 ?>
-
+	<input type="text" id="user_id" value="<?php echo $USER_ID; ?>" hidden>
 	<div class="row">
 		<div class="col-sm-2"></div>
 		<div class="col-sm-8" style="text-align:center;margin:auto"><img src="trablr_logo.jpg" alt="TRABLR LOGO" style="width:100%;max-width:350px;"></div>
@@ -76,13 +76,11 @@ $USER_ID=1;
 					<div class="panel-heading" style="font-size:150%;">
 						<strong>SEARCH ROUTES</strong>
 					</div>
-					<div class="panel-body" style="height:200px"> <!--INNER PANEL BODY-->
-
-					<form class="form-horizontal" role="form">
+					<div class="panel-body" style="height:auto;"> <!--INNER PANEL BODY-->
 				
 						<div class="form-group">
 							<div class="col-sm-12">
-							<form id="route" method="get" action="http://127.0.0.1:8080/index.php">
+							<form class="form-horizontal" role="form" id="route" method="get" action="http://127.0.0.1:8080/index.php">
 							<select name="route" style="width:100%;height:33px;" onchange="this.form.submit()">
 							<option value="-1">Select Route</option>
 					<?php 	$sql = "SELECT DISTINCT LINE_ID,ROUTE_NAME,DIRECTION FROM TRANSIT_INFO
@@ -97,15 +95,8 @@ $USER_ID=1;
 						  	} ?>
 							</select>
 							</form>
-							</div>
-						</div>
 
-					</form>
-					<form class="form-horizontal" role="form">
-
-						<div class="form-group">
-							<div class="col-sm-12">
-							<form id="route" method="get" action="http://127.0.0.1:8080/index.php">
+							<form class="form-horizontal" role="form" id="route" method="get" action="http://127.0.0.1:8080/index.php">
 					<?php 	$sql = "SELECT DISTINCT STOP_ID,STOP_NAME FROM TRANSIT_INFO
 									WHERE LINE_ID=".$line_id." AND DIRECTION='".$direction."'
 									ORDER BY STOP_NAME ASC;";
@@ -133,15 +124,8 @@ $USER_ID=1;
 					<?php 	} ?>
 							</select>
 							</form>
-							</div>
-						</div>
 
-					</form>
-					<form class="form-horizontal" role="form">
-						
-						<div class="form-group">
-							<div class="col-sm-12">
-							<form id="route" method="get" action="http://127.0.0.1:8080/index.php">
+							<form class="form-horizontal" role="form" id="route" method="get" action="http://127.0.0.1:8080/index.php">
 					<?php	$sql = "SELECT DISTINCT STOP_ID,STOP_NAME FROM TRANSIT_INFO
 									WHERE LINE_ID=".$line_id." AND DIRECTION='".$direction."' AND STOP_ID<>".$start_id."
 									ORDER BY STOP_NAME ASC;";
@@ -168,29 +152,26 @@ $USER_ID=1;
 									<option value="-1">Select Start</option>
 					<?php 	} ?>
 							</select>
-							</form							</div>
-						</div>
+							</form>
 
-					</form>
-
-					<!-- <form class="form-horizontal" role="form"> -->
-						
-						<div class="col-sm-4">
-							<div class="col-sm-12">
 					<?php 	if($START_ROUTE) { ?>
 								<br>
+								<!-- <input type="text" id="user_id" value="<?php echo $USER_ID; ?>" hidden> -->
 								<input type="text" id="line_id_0" value="<?php echo $line_id; ?>" hidden>
 								<input type="text" id="stop_id_start_0" value="<?php echo $start_id; ?>" hidden>
 								<input type="text" id="stop_id_end_0" value="<?php echo $end_id; ?>" hidden>
 								<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_0" value="<?php echo $start_id; ?>"><strong><?php echo $start_id." -> ".$end_id; ?></strong></button>
 								<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_0">EXIT</button>
 
-								<!-- <script>
+								<script>
 									$(function() {
 										$('#get_stop_monitoring_0').click();
-										$('#get_stop_monitoring_0').one('click', function() {});
+										// $('#get_stop_monitoring_0').one('click', function() {});
 									});
-								</script> -->
+								</script>
+								<br>
+								<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="insert_favorite_route_0">Add Route To Favorites</button>
+								<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="update_favorite_route_usage_0">TEST</button>
 					<?php	} ?>
 								<!-- <button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto;" ng-click="signinsubmit();"><strong>Route</strong></button> -->
 						
@@ -203,8 +184,6 @@ $USER_ID=1;
 								<!-- </div> -->
 							</div>
 						</div>
-					
-					<!-- </form> -->
 
 					</div> <!--INNER PANEL BODY-->	
 
@@ -212,41 +191,42 @@ $USER_ID=1;
 		</div> 
 		
 		<div class="col-sm-4" > 
-				<div class="panel panel-warning">
-					<div class="panel-heading" style="font-size:150%;">
-						<strong>FAVORITE ROUTES</strong>
+			<div class="panel panel-warning">
+				<div class="panel-heading" style="font-size:150%;">
+					<strong>FAVORITE ROUTES</strong>
+				</div>
+				<div class="panel-body" style="height:180px"> <!--INNER PANEL BODY-->
+					<div class="col-sm-12">
+
+			<?php 	$sql = "SELECT UF.*,TI.*
+							FROM USER_FAVORITES AS UF
+							LEFT JOIN TRANSIT_INFO AS TI
+							ON UF.STOP_ID_START=TI.STOP_ID
+							WHERE UF.USER_ID=$USER_ID ORDER BY UF.PRIORITY ASC;";
+					$result = mysqli_query($con,$sql);
+					$j = 0;
+					while($row = mysqli_fetch_array($result)) {
+						$j++; ?>
+
+						<input type="text" id="favorites_id_<?php echo $j; ?>" value="<?php echo $row['FAVORITES_ID']; ?>" hidden>
+						<input type="text" id="line_id_<?php echo $j; ?>" value="<?php echo $row['LINE_ID']; ?>" hidden>
+						<input type="text" id="stop_id_start_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>" hidden>
+						<input type="text" id="stop_id_end_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_END']; ?>" hidden>
+						<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
+						<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_<?php echo $j; ?>">EXIT</button>
+
+			<?php 	}
+					for ($i = $j; $i < 4; $i++) { ?>
+				 		<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" value="-1"><strong>EMPTY</strong></button>
+			<?php 	} ?>
+
 					</div>
-					<div class="panel-body" style="height:180px"> <!--INNER PANEL BODY-->
-						<div class="col-sm-12">
+				</div> <!--INNER PANEL BODY-->
 
-				<?php 	$sql = "SELECT UF.*,TI.*
-								FROM USER_FAVORITES AS UF
-								LEFT JOIN TRANSIT_INFO AS TI
-								ON UF.STOP_ID_START=TI.STOP_ID
-								WHERE UF.USER_ID=$USER_ID ORDER BY UF.PRIORITY ASC;";
-						$result = mysqli_query($con,$sql);
-						$j = 0;
-						while($row = mysqli_fetch_array($result)) {
-							$j++; ?>
-
-							<input type="text" id="line_id_<?php echo $j; ?>" value="<?php echo $row['LINE_ID']; ?>" hidden>
-							<input type="text" id="stop_id_start_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>" hidden>
-							<input type="text" id="stop_id_end_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_END']; ?>" hidden>
-							<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
-							<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_<?php echo $j; ?>">EXIT</button>
-
-				<?php 	}
-						for ($i = $j; $i < 4; $i++) { ?>
-					 		<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" value="-1"><strong>EMPTY</strong></button>
-				<?php 	} ?>
-
-						</div>
-					</div> <!--INNER PANEL BODY-->
-
-				</div><!--panel panel-default-->
+			</div><!--panel panel-default-->
 		</div>
 		
-		<div class="col-sm-2"> </div> 
+		<div class="col-sm-2"> </div>
 	</div> <!--FIRST ROW -->
 	
 	<div class="row"> <!-- SECOND ROW -->
@@ -277,15 +257,6 @@ $USER_ID=1;
 	
 		<div class="col-sm-2"> </div> 
 	</div> <!--SECOND ROW -->
-
-	<!-- <?php 	if($START_ROUTE) { ?>
-								<input type="text" id="line_id_0" value="<?php echo $line_id; ?>" hidden>
-								<input type="text" id="stop_id_start_0" value="<?php echo $start_id; ?>" hidden>
-								<input type="text" id="stop_id_end_0" value="<?php echo $end_id; ?>" hidden>
-								<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_0" value="<?php echo $start_id; ?>"><strong><?php echo $start_id." -> ".$end_id; ?></strong></button>
-								<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_0">EXIT</button>
-								<script>test(0);</script>
-					<?php	} ?> -->
 
 </body>
 </html>

@@ -42,20 +42,45 @@ static int is_equal(const struct mg_str *s1, const struct mg_str *s2) {
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
-    static const struct mg_str api_prefix = MG_MK_STR("/api/v1");
+    static const struct mg_str api_511_prefix = MG_MK_STR("/api/511");
+    static const struct mg_str api_mysql_prefix = MG_MK_STR("/api/mysql");
     struct http_message *hm = (struct http_message *) ev_data;
     struct mg_str key;
 
     switch (ev) {
         case MG_EV_HTTP_REQUEST: {
-            if (has_prefix(&hm->uri, &api_prefix)) {
-                key.p = hm->uri.p + api_prefix.len;
-                key.len = hm->uri.len - api_prefix.len;
+            if (has_prefix(&hm->uri, &api_511_prefix)) {
+                key.p = hm->uri.p + api_511_prefix.len;
+                key.len = hm->uri.len - api_511_prefix.len;
                 if (mg_vcmp(&key, "/get_stop_monitoring") == 0) {
                     printf("/get_stop_monitoring\n");
                     Trablr trablr;
                     trablr.get511ApiTransitStopMonitoring(nc, hm);
                 } 
+                else if (mg_vcmp(&hm->uri, "/show_time") == 0) {
+                    printf("show_time\n");
+                }
+                else {
+                    mg_printf(nc, "%s",
+                    "HTTP/1.0 501 Not Implemented\r\n"
+                    "Content-Length: 0\r\n\r\n");
+                    printf("HTTP/1.0 501 Not Implemented\n");
+                }
+            }
+            else if (has_prefix(&hm->uri, &api_mysql_prefix)) {
+                key.p = hm->uri.p + api_mysql_prefix.len;
+                key.len = hm->uri.len - api_mysql_prefix.len;
+                if (mg_vcmp(&key, "/insert_favorite_route") == 0) {
+                    printf("/insert_favorite_route\n");
+                    TrablrMySql trablrmysql;
+                    trablrmysql.insertFavoriteRoute(nc, hm);
+                    printf("/insert_favorite_route\n");
+                }
+                else if (mg_vcmp(&key, "/update_favorite_route_usage") == 0) {
+                    printf("/update_favorite_route_usage\n");
+                    TrablrMySql trablrmysql;
+                    trablrmysql.updateFavoriteRouteUsage(nc, hm);
+                }
                 else if (mg_vcmp(&hm->uri, "/show_time") == 0) {
                     printf("show_time\n");
                 }
