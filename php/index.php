@@ -156,7 +156,6 @@ $USER_ID=1;
 
 					<?php 	if($START_ROUTE) { ?>
 								<br>
-								<!-- <input type="text" id="user_id" value="<?php echo $USER_ID; ?>" hidden> -->
 								<input type="text" id="line_id_0" value="<?php echo $line_id; ?>" hidden>
 								<input type="text" id="stop_id_start_0" value="<?php echo $start_id; ?>" hidden>
 								<input type="text" id="stop_id_end_0" value="<?php echo $end_id; ?>" hidden>
@@ -170,9 +169,15 @@ $USER_ID=1;
 									});
 								</script>
 								<br>
-								<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="insert_favorite_route_0">Add Route To Favorites</button>
-								<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="update_favorite_route_usage_0">TEST</button>
-					<?php	} ?>
+					<?php		$sql = "SELECT * FROM USER_FAVORITES
+										WHERE USER_ID=".$USER_ID." AND STOP_ID_START=".$start_id." AND STOP_ID_END=".$end_id.";";
+								$result = mysqli_query($con,$sql);
+								if (mysqli_num_rows($result) == 0) { ?>
+									<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="insert_favorite_route_0">Add Route To Favorites</button>
+					<?php		} else { ?>
+									<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="insert_favorite_route_0" disabled>Add Route To Favorites</button>
+					<?php 		}
+							} ?>
 								<!-- <button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto;" ng-click="signinsubmit();"><strong>Route</strong></button> -->
 						
 								<!-- <div class="btn-group"> -->

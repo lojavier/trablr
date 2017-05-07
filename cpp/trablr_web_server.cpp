@@ -81,8 +81,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     TrablrMySql trablrmysql;
                     trablrmysql.updateFavoriteRouteUsage(nc, hm);
                 }
-                else if (mg_vcmp(&hm->uri, "/show_time") == 0) {
-                    printf("show_time\n");
+                else if (mg_vcmp(&key, "/delete_favorite_route") == 0) {
+                    printf("/delete_favorite_route\n");
+                    TrablrMySql trablrmysql;
+                    trablrmysql.deleteFavoriteRoute(nc, hm);
                 }
                 else {
                     mg_printf(nc, "%s",

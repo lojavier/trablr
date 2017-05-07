@@ -16,7 +16,6 @@ TrablrMySql::TrablrMySql(void) :
 		con = driver->connect(DB_SERVER, DB_USERNAME, DB_PASSWORD);
 	
 		/* Connect to the MySQL test database */
-		// con->setSchema(DB_SCHEMA);
 		stmt = con->createStatement();
 		stmt->execute("USE " + DB_SCHEMA);
 
@@ -39,11 +38,7 @@ void TrablrMySql::updateFavoriteRouteUsage(struct mg_connection *nc, struct http
 {
 	string json_result = "{\"test\":0}";
 	string statement = "";
-	// char user_id[10], stop_id_start[10], stop_id_end[10];
 	char favorites_id[11];
-	// mg_get_http_var(&hm->body, "user_id", user_id, sizeof(user_id));
- //    mg_get_http_var(&hm->body, "stop_id_start", stop_id_start, sizeof(stop_id_start));
- //    mg_get_http_var(&hm->body, "stop_id_end", stop_id_end, sizeof(stop_id_end));
     mg_get_http_var(&hm->body, "favorites_id", favorites_id, sizeof(favorites_id));
 
 	try {
@@ -71,33 +66,72 @@ void TrablrMySql::insertFavoriteRoute(struct mg_connection *nc, struct http_mess
 {
 	string json_result = "{\"test\":0}";
 	string statement = "";
+	int favorites_count = 0;
 	char user_id[10], stop_id_start[10], stop_id_end[10];
 	mg_get_http_var(&hm->body, "user_id", user_id, sizeof(user_id));
     mg_get_http_var(&hm->body, "stop_id_start", stop_id_start, sizeof(stop_id_start));
     mg_get_http_var(&hm->body, "stop_id_end", stop_id_end, sizeof(stop_id_end));
 
 	try {
-		// res = stmt->executeQuery("SELECT * FROM TRANSIT_INFO");
-		// while (res->next()) {
-		// 	cout << "TRANSIT_ID = " << res->getInt("TRANSIT_ID") << endl;
-		// 	cout << "STOP_ID = " << res->getInt("STOP_ID") << endl;
-		// 	cout << "LINE_ID = " << res->getInt("LINE_ID") << endl;
-		// 	cout << "STOP_NAME = " << res->getString("STOP_NAME") << endl;
-		// }
-		// delete res;
-
-		statement = "INSERT INTO USER_FAVORITES (USER_ID,STOP_ID_START,STOP_ID_END,PRIORITY) VALUES (";
+		statement = "SELECT *,COUNT(*) as favorites_count FROM USER_FAVORITES WHERE USER_ID=";
 		statement.append(user_id);
-		statement += ",";
-		statement.append(stop_id_start);
-		statement += ",";
-		statement.append(stop_id_end);
-		statement += ",";
-		statement.append("4");
-		statement += ")";
+		cout << statement << endl;
+		res = stmt->executeQuery(statement);
+		while (res->next()) {
+			favorites_count = res->getInt("favorites_count");
+			cout << "favorites_count = " << res->getInt("favorites_count") << endl;
+			cout << "PRIORITY = " << res->getInt("PRIORITY") << endl;
+			cout << "CLICK_COUNT = " << res->getInt("CLICK_COUNT") << endl;
+		}
+		delete res;
+
+		statement.clear();
+		if (favorites_count < 4) {
+			statement = "INSERT INTO USER_FAVORITES (USER_ID,STOP_ID_START,STOP_ID_END,PRIORITY) VALUES (";
+			statement.append(user_id);
+			statement += ",";
+			statement.append(stop_id_start);
+			statement += ",";
+			statement.append(stop_id_end);
+			statement += ",";
+			favorites_count += 1;
+			stringstream ss;
+        	ss << favorites_count;
+			statement.append(ss.str());
+			statement += ")";
+	        cout << statement << endl;
+			stmt->execute(statement);
+			delete stmt;
+		} else {
+			json_result = "{\"Error\": \"Maximum favorite routes reached. Please delete a route before adding a new one\"}";
+		}
+
+	} catch (sql::SQLException &e) {
+		cout << "# ERR: SQLException in " << __FILE__;
+		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+		cout << "# ERR: " << e.what();
+		cout << " (MySQL error code: " << e.getErrorCode();
+		cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+	}
+
+	cout << "Done." << endl;
+    mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+    mg_printf_http_chunk(nc, json_result.c_str());
+    mg_send_http_chunk(nc, "", 0);
+}
+
+void TrablrMySql::deleteFavoriteRoute(struct mg_connection *nc, struct http_message *hm)
+{
+	string json_result = "{\"test\":0}";
+	string statement = "";
+	char favorites_id[11];
+    mg_get_http_var(&hm->body, "favorites_id", favorites_id, sizeof(favorites_id));
+
+	try {
+		statement = "DELETE FROM USER_FAVORITES WHERE FAVORITES_ID=";
+		statement.append(favorites_id);
         cout << statement << endl;
 		stmt->execute(statement);
-
 		delete stmt;
 
 	} catch (sql::SQLException &e) {

@@ -10,6 +10,7 @@ class TrablrMySql {
         ~TrablrMySql();
         void insertFavoriteRoute(struct mg_connection *nc, struct http_message *hm);
         void updateFavoriteRouteUsage(struct mg_connection *nc, struct http_message *hm);
+        void deleteFavoriteRoute(struct mg_connection *nc, struct http_message *hm);
 
     private:
         const string DB_SERVER;

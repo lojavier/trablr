@@ -57,7 +57,16 @@ jQuery(function() {
 	    $('#exit_'+id).click( function(){exit(id);} );
 	    $('#get_stop_monitoring_'+id).click( function(){get_stop_monitoring(id); if(id>0)update_favorite_route_usage(id);} );
         $('#insert_favorite_route_'+id).click( function(){insert_favorite_route(id);} );
-        $('#update_favorite_route_usage_'+id).click( function(){update_favorite_route_usage(id);} );
+
+        if (id > 0) {
+            $('#get_stop_monitoring_'+id).on("mousedown",function(){
+                timer = setTimeout(function(){
+                    confirmFavoriteRouteDelete(id);
+                },2*1000);
+            }).on("mouseup mouseleave",function(){
+                clearTimeout(timer);
+            });
+        }
 	}
 
     function update_favorite_route_usage(id) {
@@ -103,5 +112,32 @@ jQuery(function() {
                 // location.reload();
             }
         });
+    }
+
+    function delete_favorite_route(id) {
+        $.ajax({
+            url: 'http://127.0.0.1:8080/api/mysql/delete_favorite_route',
+            type: 'POST',
+            dataType: 'json',
+            data: { favorites_id: $('#favorites_id_'+id).val()
+            },
+            success: function(json) {
+                // alert("success");
+            },
+            complete: function() {
+                // alert("complete");
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                alert("ERROR: Could not update favorite route usage");
+            }
+        });
+    }
+
+    function confirmFavoriteRouteDelete(id) {
+        var choice = confirm("Do you want to delete this route?");
+        if (choice == true) {
+            delete_favorite_route(id);
+            location.reload();
+        }
     }
 });
