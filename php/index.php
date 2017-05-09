@@ -80,7 +80,7 @@ $USER_ID=1;
 				
 						<div class="form-group">
 							<div class="col-sm-12">
-							<form class="form-horizontal" role="form" id="route" method="get" action="http://127.0.0.1:8080/index.php">
+							<form class="form-horizontal" role="form" id="route" method="get" action="index.php">
 							<select name="route" style="width:100%;height:33px;" onchange="this.form.submit()">
 							<option value="-1">Select Route</option>
 					<?php 	$sql = "SELECT DISTINCT LINE_ID,ROUTE_NAME,DIRECTION FROM TRANSIT_INFO
@@ -96,7 +96,7 @@ $USER_ID=1;
 							</select>
 							</form>
 
-							<form class="form-horizontal" role="form" id="route" method="get" action="http://127.0.0.1:8080/index.php">
+							<form class="form-horizontal" role="form" id="route" method="get" action="index.php">
 					<?php 	$sql = "SELECT DISTINCT STOP_ID,STOP_NAME FROM TRANSIT_INFO
 									WHERE LINE_ID=".$line_id." AND DIRECTION='".$direction."'
 									ORDER BY STOP_NAME ASC;";
@@ -125,7 +125,7 @@ $USER_ID=1;
 							</select>
 							</form>
 
-							<form class="form-horizontal" role="form" id="route" method="get" action="http://127.0.0.1:8080/index.php">
+							<form class="form-horizontal" role="form" id="route" method="get" action="index.php">
 					<?php	$sql = "SELECT DISTINCT STOP_ID,STOP_NAME FROM TRANSIT_INFO
 									WHERE LINE_ID=".$line_id." AND DIRECTION='".$direction."' AND STOP_ID<>".$start_id."
 									ORDER BY STOP_NAME ASC;";
@@ -155,7 +155,7 @@ $USER_ID=1;
 							</form>
 
 					<?php 	if($START_ROUTE) { ?>
-								<br>
+					
 								<input type="text" id="line_id_0" value="<?php echo $line_id; ?>" hidden>
 								<input type="text" id="stop_id_start_0" value="<?php echo $start_id; ?>" hidden>
 								<input type="text" id="stop_id_end_0" value="<?php echo $end_id; ?>" hidden>
@@ -168,7 +168,7 @@ $USER_ID=1;
 										// $('#get_stop_monitoring_0').one('click', function() {});
 									});
 								</script>
-								<br>
+
 					<?php		$sql = "SELECT * FROM USER_FAVORITES
 										WHERE USER_ID=".$USER_ID." AND STOP_ID_START=".$start_id." AND STOP_ID_END=".$end_id.";";
 								$result = mysqli_query($con,$sql);

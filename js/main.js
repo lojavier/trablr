@@ -3,6 +3,23 @@ jQuery(function() {
 	var favoriteRoutes = $('[id^=get_stop_monitoring_]').length;
     var timeoutId = null;
 
+    for (let id = 0; id <= favoriteRoutes; id++) {
+        jQuery('#exit_'+id).hide();
+        $('#exit_'+id).click( function(){exit(id);} );
+        $('#get_stop_monitoring_'+id).click( function(){get_stop_monitoring(id); if(id>0)update_favorite_route_usage(id);} );
+        $('#insert_favorite_route_'+id).click( function(){insert_favorite_route(id);} );
+
+        if (id > 0) {
+            $('#get_stop_monitoring_'+id).on("mousedown",function(){
+                timer = setTimeout(function(){
+                    confirmFavoriteRouteDelete(id);
+                },2*1000);
+            }).on("mouseup mouseleave",function(){
+                clearTimeout(timer);
+            });
+        }
+    }
+
     function get_stop_monitoring(id) {
         $.ajax({
             url: 'http://127.0.0.1:8080/api/511/get_stop_monitoring',
@@ -51,23 +68,6 @@ jQuery(function() {
 	        $('#get_stop_monitoring_'+j).attr("disabled", false);
     	}
     }
-
-	for (let id = 0; id <= favoriteRoutes; id++) {
-    	jQuery('#exit_'+id).hide();
-	    $('#exit_'+id).click( function(){exit(id);} );
-	    $('#get_stop_monitoring_'+id).click( function(){get_stop_monitoring(id); if(id>0)update_favorite_route_usage(id);} );
-        $('#insert_favorite_route_'+id).click( function(){insert_favorite_route(id);} );
-
-        if (id > 0) {
-            $('#get_stop_monitoring_'+id).on("mousedown",function(){
-                timer = setTimeout(function(){
-                    confirmFavoriteRouteDelete(id);
-                },2*1000);
-            }).on("mouseup mouseleave",function(){
-                clearTimeout(timer);
-            });
-        }
-	}
 
     function update_favorite_route_usage(id) {
         $.ajax({
