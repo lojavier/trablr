@@ -70,11 +70,15 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
             else if (has_prefix(&hm->uri, &api_mysql_prefix)) {
                 key.p = hm->uri.p + api_mysql_prefix.len;
                 key.len = hm->uri.len - api_mysql_prefix.len;
-                if (mg_vcmp(&key, "/insert_favorite_route") == 0) {
+                if (mg_vcmp(&key, "/get_select_stop_id_start") == 0) {
+                    printf("/get_select_stop_id_start\n");
+                    TrablrMySql trablrmysql;
+                    trablrmysql.getSelectStopIdStart(nc, hm);
+                }
+                else if (mg_vcmp(&key, "/insert_favorite_route") == 0) {
                     printf("/insert_favorite_route\n");
                     TrablrMySql trablrmysql;
                     trablrmysql.insertFavoriteRoute(nc, hm);
-                    printf("/insert_favorite_route\n");
                 }
                 else if (mg_vcmp(&key, "/update_favorite_route_usage") == 0) {
                     printf("/update_favorite_route_usage\n");

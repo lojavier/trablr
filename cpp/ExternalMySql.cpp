@@ -5,6 +5,7 @@ TrablrMySql::TrablrMySql(void) :
 	DB_SERVER("tcp://127.0.0.1:3306"),
 	DB_USERNAME("root"),
 	DB_PASSWORD("spartan"),
+	// DB_PASSWORD("password"),
 	DB_SCHEMA("TRABLR_DB")
 { 
 	printf("Creating Trablr Mysql\n");
@@ -32,6 +33,34 @@ TrablrMySql::~TrablrMySql(void)
 { 
 	printf("Destroying Trablr Mysql\n");
 	delete con;
+}
+
+void TrablrMySql::getSelectStopIdStart(struct mg_connection *nc, struct http_message *hm)
+{
+	string json_result = "{\"test\":0}";
+	string statement = "";
+	char line_id[11];
+    mg_get_http_var(&hm->body, "line_id", line_id, sizeof(line_id));
+
+	// try {
+	// 	statement = "UPDATE USER_FAVORITES SET CLICK_COUNT=CLICK_COUNT+1 WHERE FAVORITES_ID=";
+	// 	statement.append(favorites_id);
+ //        cout << statement << endl;
+	// 	stmt->execute(statement);
+	// 	delete stmt;
+
+	// } catch (sql::SQLException &e) {
+	// 	cout << "# ERR: SQLException in " << __FILE__;
+	// 	cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+	// 	cout << "# ERR: " << e.what();
+	// 	cout << " (MySQL error code: " << e.getErrorCode();
+	// 	cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+	// }
+
+	cout << "Done." << endl;
+    mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+    mg_printf_http_chunk(nc, json_result.c_str());
+    mg_send_http_chunk(nc, "", 0);
 }
 
 void TrablrMySql::updateFavoriteRouteUsage(struct mg_connection *nc, struct http_message *hm)
@@ -67,7 +96,7 @@ void TrablrMySql::insertFavoriteRoute(struct mg_connection *nc, struct http_mess
 	string json_result = "{\"test\":0}";
 	string statement = "";
 	int favorites_count = 0;
-	char user_id[10], stop_id_start[10], stop_id_end[10];
+	char user_id[11], stop_id_start[11], stop_id_end[11];
 	mg_get_http_var(&hm->body, "user_id", user_id, sizeof(user_id));
     mg_get_http_var(&hm->body, "stop_id_start", stop_id_start, sizeof(stop_id_start));
     mg_get_http_var(&hm->body, "stop_id_end", stop_id_end, sizeof(stop_id_end));

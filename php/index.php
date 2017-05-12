@@ -93,7 +93,7 @@ $USER_ID=1;
 									<option value="<?php echo $row['LINE_ID']."_".$row['DIRECTION']; ?>"><?php echo $row['LINE_ID']." - ".$row['ROUTE_NAME']." (".$row['DIRECTION'].")"; ?></option>
 					<?php  		}
 						  	} ?>
-							</select>
+								</select>
 							</form>
 
 							<form class="form-horizontal" role="form" id="route" method="get" action="index.php">
@@ -122,7 +122,7 @@ $USER_ID=1;
 								<select name="route" style="width:100%;height:33px;" disabled>
 									<option value="-1">Select Start</option>
 					<?php 	} ?>
-							</select>
+								</select>
 							</form>
 
 							<form class="form-horizontal" role="form" id="route" method="get" action="index.php">
@@ -151,7 +151,7 @@ $USER_ID=1;
 								<select name="route" style="width:100%;height:33px;" disabled>
 									<option value="-1">Select Start</option>
 					<?php 	} ?>
-							</select>
+								</select>
 							</form>
 
 					<?php 	if($START_ROUTE) { ?>
@@ -178,6 +178,34 @@ $USER_ID=1;
 									<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="insert_favorite_route_0" disabled>Add Route To Favorites</button>
 					<?php 		}
 							} ?>
+
+							<form class="form-horizontal" role="form">
+								<select name="select_line_id" id="select_line_id" style="width:100%;height:33px;">
+								<option value="-1">Select Route</option>
+								<option value="2">Line ID = ?</option>
+								</select>
+							</form>
+
+							<div class="select_stop_id_start">
+							<form class="form-horizontal" role="form">
+								<select name="select_stop_id_start" id="select_stop_id_start" style="width:100%;height:33px;" disabled>
+								<option value="-1">Select Start</option>
+								<option value="2">Start ID = ?</option>
+								</select>
+							</form>
+							</div>
+
+							<div class="select_stop_id_end">
+							<form class="form-horizontal" role="form">
+								<select name="select_stop_id_end" id="select_stop_id_end" style="width:100%;height:33px;" disabled>
+								<option value="-1">Select End</option>
+								<option value="2">End ID = ?</option>
+								</select>
+							</form>
+							</div>
+
+							<div class="select_live_eta"></div>
+
 								<!-- <button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto;" ng-click="signinsubmit();"><strong>Route</strong></button> -->
 						
 								<!-- <div class="btn-group"> -->
