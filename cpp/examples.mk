@@ -1,6 +1,7 @@
-SOURCES = $(PROG).cpp mongoose.c ExternalApi.cpp
+SOURCES = $(PROG).cpp mongoose.c ExternalApi.cpp ExternalMySql.cpp
 INC = -I${HOME}/curl/include/
 INC += -I${HOME}/rapidjson/include/
+INC += -I/usr/include/
 CFLAGS = -g -W -Wall -Werror $(INC) -Wno-unused-function $(CFLAGS_EXTRA) $(MODULE_CFLAGS)
 
 all: clean $(PROG)
@@ -12,7 +13,7 @@ CC = gcc
 else
 CXX = g++
 CFLAGS += -pthread
-LDLIBS += -lcurl
+LDLIBS += -lcurl -lmysqlcppconn
 endif
 
 ifeq ($(SSL_LIB),openssl)

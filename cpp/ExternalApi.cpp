@@ -5,8 +5,8 @@ string API_RESPONSE_JSON;
 
 Trablr::Trablr(void) :
     host_name("http://api.511.org"),
-    // api_key("876be52b-5ed7-46bf-bfe9-43443887b34a"),
-    api_key("df8fb6d5-d994-4579-9537-84018bcb12e4"),
+    api_key("876be52b-5ed7-46bf-bfe9-43443887b34a"),
+    // api_key("df8fb6d5-d994-4579-9537-84018bcb12e4"),
     format("JSON")
 { printf("Creating Trablr\n"); }
 
@@ -190,7 +190,8 @@ void Trablr::get511ApiTransitStopMonitoring(struct mg_connection *nc, struct htt
     mg_get_http_var(&hm->body, "stop_id_end", stop_id_end, sizeof(stop_id_end));
     string api_prefix = "/transit/StopMonitoring";
     string agency = "VTA";
-    // string stopCode = "60824";
+    // strncpy(line_id, "60", sizeof(line_id));
+    // strncpy(stopCode, "60824", sizeof(stopCode));
     string API_REQUEST_URL = host_name + api_prefix
                             + "?api_key=" + api_key
                             + "&agency=" + agency
@@ -204,6 +205,8 @@ void Trablr::get511ApiTransitStopMonitoring(struct mg_connection *nc, struct htt
     Document document;
     if (document.Parse<0>(API_RESPONSE_JSON.c_str()).HasParseError()) {
         fprintf(stderr, "JSON Parsing error\n");
+        cout << API_RESPONSE_JSON << '\n';
+        exit(EXIT_FAILURE);
     }
     assert(document.IsObject());
     assert(document.HasMember("ServiceDelivery"));
@@ -237,15 +240,47 @@ void Trablr::get511ApiTransitStopMonitoring(struct mg_connection *nc, struct htt
             json_result += ",";
         }
         cout << AimedArrivalTimeVector[i] << '\n';
-        json_result += "\"" + AimedArrivalTimeVector[i] + "\"";
+
+        // char buf[80];
+        struct tm tm_arrival_utc;
+        strptime(AimedArrivalTimeVector[i].c_str(), "%FT%TZ", &tm_arrival_utc);
+        time_t time_arrival_utc = timegm(&tm_arrival_utc);
+        // cout << "time_arrival_utc = " << time_arrival_utc << '\n';
+        // strftime(buf, sizeof(buf), "%I:%M %p", &tm_arrival_utc);
+        // cout << "time_arrival_utc = " << buf << '\n';
+
+        char ArrivalTime[20];
+        struct tm *tm_local = localtime(&time_arrival_utc);
+        time_t time_local = mktime(tm_local);
+        strftime(ArrivalTime, sizeof(ArrivalTime), "%I:%M %p", tm_local);
+        cout << "ArrivalTime = " << ArrivalTime << '\n';
+
+        // struct tm *tm_current;
+        // time_t time_current = time(NULL);
+        // tm_current = localtime(&time_current);
+        // strftime(buf, sizeof(buf), "%I:%M %p", tm_current);
+        // cout << "time_current = " << buf << '\n';
+
+        uint ArrivalMinutes = floor(difftime(time_local, time(NULL)) / 60);
+        cout << "ArrivalMinutes = " << ArrivalMinutes << '\n';
+
+        stringstream ss;
+        ss << ArrivalTime;
+        json_result += "{\"ArrivalTime\":\"" + ss.str() + "\"";
+        ss.str("");
+        ss << ArrivalMinutes;
+        json_result += ",\"ArrivalMinutes\":" + ss.str() + "}";
+
+        // json_result += "\"" + AimedArrivalTimeVector[i] + "\"";        
     }
     json_result += "]}";
     cout << json_result << '\n';
 
-    printf("line_id=%s stop_id_start=%s stop_id_end=%s\n", line_id, stopCode, stop_id_end);
+    printf("line_id=%s  stop_id_start=%s  stop_id_end=%s\n", line_id, stopCode, stop_id_end);
     /* Compute the result and send it back as a JSON object */
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
     mg_printf_http_chunk(nc, json_result.c_str());
+    // mg_printf_http_chunk(nc, "{ \"line_id_result\": %d, \"stop_id_start_result\": %d, \"stop_id_end_result\": %d }", atoi(line_id), atoi(stopCode), atoi(stop_id_end));
     mg_send_http_chunk(nc, "", 0);
 }
 
