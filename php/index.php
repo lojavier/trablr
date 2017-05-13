@@ -1,295 +1,269 @@
 #!/usr/bin/php5-cgi
+<?php
+ob_start();
+session_start();
+require_once("config.php");
+
+if (isset($_SESSION['USER_ID']) != "") {
+	header("Location: home.php");
+	exit;
+}
+
+$error = false;
+$emailError = false;
+$passError = false;
+$nameError = false;
+
+if( isset($_POST['btn-login']) ) { 
+	// prevent sql injections/ clear user invalid inputs
+	$email = trim($_POST['email']);
+	$email = strip_tags($email);
+	$email = htmlspecialchars($email);
+
+	$pass = trim($_POST['pass']);
+	$pass = strip_tags($pass);
+	$pass = htmlspecialchars($pass);
+	// prevent sql injections / clear user invalid inputs
+
+	if (empty($email)) {
+		$error = true;
+		$emailError = "Please enter your email address.";
+	} else if ( !filter_var($email,FILTER_VALIDATE_EMAIL) ) {
+		$error = true;
+		$emailError = "Please enter valid email address.";
+	}
+
+	if (empty($pass)) {
+		$error = true;
+		$passError = "Please enter your password.";
+	}
+
+	// if there's no error, continue to login
+	if (!$error) {
+		$password = hash('sha256', $pass); // password hashing using SHA256
+
+		$res=mysqli_query($con,"SELECT USER_ID,PASSWORD FROM USER_INFO WHERE EMAIL='$email'");
+		$row=mysqli_fetch_array($res);
+		$count = mysqli_num_rows($res); // if uname/pass correct it returns must be 1 row
+
+		if( $count == 1 && $row['PASSWORD']==$password ) {
+			$_SESSION['USER_ID'] = $row['USER_ID'];
+			header("Location: home.php");
+		} else {
+			$errMSG_A = "Incorrect Credentials, Try again...";
+		}
+	}
+} else if ( isset($_POST['btn-signup']) ) {
+	// clean user inputs to prevent sql injections
+	$fname = trim($_POST['fname']);
+	$fname = strip_tags($fname);
+	$fname = htmlspecialchars($fname);
+
+	$email = trim($_POST['email']);
+	$email = strip_tags($email);
+	$email = htmlspecialchars($email);
+
+	$pass = trim($_POST['pass']);
+	$pass = strip_tags($pass);
+	$pass = htmlspecialchars($pass);
+
+	// basic name validation
+	if (empty($fname)) {
+		$error = true;
+		$nameError = "Please enter your first name.";
+	} else if (strlen($fname) < 3) {
+		$error = true;
+		$nameError = "Name must have atleat 3 characters.";
+	} else if (!preg_match("/^[a-zA-Z ]+$/",$fname)) {
+		$error = true;
+		$nameError = "Name must contain alphabets and space.";
+	}
+
+	//basic email validation
+	if ( !filter_var($email,FILTER_VALIDATE_EMAIL) ) {
+		$error = true;
+		$emailError = "Please enter valid email address.";
+	} else {
+		// check email exist or not
+		$query = "SELECT EMAIL FROM USER_INFO WHERE EMAIL='$email'";
+		$result = mysqli_query($con,$query);
+		$count = mysqli_num_rows($result);
+		if ($count!=0) {
+			$error = true;
+			$emailError = "Provided Email is already in use.";
+		}
+	}
+	// password validation
+	if (empty($pass)){
+		$error = true;
+		$passError = "Please enter password.";
+	} else if(strlen($pass) < 6) {
+		$error = true;
+		$passError = "Password must have atleast 6 characters.";
+	}
+
+	// password encrypt using SHA256();
+	$password = hash('sha256', $pass);
+
+	// if there's no error, continue to signup
+	if( !$error ) {
+		$query = "INSERT INTO USER_INFO(EMAIL,PASSWORD,FIRST_NAME) VALUES('$email','$password','$fname')";
+		$res = mysqli_query($con,$query);
+
+		if ($res) {
+			$errTyp = "success";
+			$errMSG_B = "Successfully registered, you may login now";
+			unset($fname);
+			unset($email);
+			unset($pass);
+		} else {
+			$errTyp = "danger";
+			$errMSG_B = "Something went wrong, try again later..."; 
+		}
+	}
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
-	<title>TRABLR HOME</title>
+	<title>TRABLR</title>
 	<meta charset="utf-8">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<!-- <link rel='stylesheet' href='/stylesheets/hr.css' /> -->
+	<!-- <link rel='stylesheet' href='/stylesheets/style.css' /> -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
-
-	<script src="js/main.js"></script>
 </head>
 
-<body style="background-color :#F8F8F8">
+<body>
 
-<?php 
-require_once("config.php");
-
-$QUERY_ROUTE = false;
-$QUERY_START_ID = false;
-$QUERY_END_ID = false;
-$START_ROUTE = false;
-$line_id = false;
-$direction = false;
-$start_id = false;
-$end_id = false;
-if(isset($_GET['route']) && $_GET['route']!=-1) {
-	$route = explode("_",$_GET['route']);
-	for ($i = 0; $i < sizeof($route); $i++) {
-		switch($i) {
-			case 0:
-				$QUERY_ROUTE = true;
-				$line_id = $route[$i];
-				break;
-			case 1:
-				$QUERY_ROUTE = true;
-				$direction = $route[$i];
-				break;
-			case 2:
-				$QUERY_START_ID = true;
-				$start_id = $route[$i];
-				break;
-			case 3:
-				$QUERY_END_ID = true;
-				$end_id = $route[$i];
-				break;
-			case 4:
-				$START_ROUTE = true;
-				break;
-			default:
-				break;
-		}
-	}
-}
-
-$USER_ID=1;
-?>
-	<input type="text" id="user_id" value="<?php echo $USER_ID; ?>" hidden>
 	<div class="row">
 		<div class="col-sm-2"></div>
 		<div class="col-sm-8" style="text-align:center;margin:auto"><img src="trablr_logo.jpg" alt="TRABLR LOGO" style="width:100%;max-width:350px;"></div>
 		<div class="col-sm-2"></div>
 	</div>
-	
-	<div class="row"> <!-- FIRST ROW -->
+
+	<div class="row"> <!--main row-->
+	<div class="col-sm-4"></div> <!--left side column gap-->
+	<div class="col-sm-4"> <!--main column-->
 		
-		<div class="col-sm-2"></div>
+		<br><br>
+		<div class="panel panel-default">
 		
-		<div class="col-sm-4" > 
-				<div class="panel panel-success">
-					<div class="panel-heading" style="font-size:150%;">
-						<strong>SEARCH ROUTES</strong>
-					</div>
-					<div class="panel-body" style="height:auto;"> <!--INNER PANEL BODY-->
-				
-						<div class="form-group">
-							<div class="col-sm-12">
-							<form class="form-horizontal" role="form" id="route" method="get" action="index.php">
-							<select name="route" style="width:100%;height:33px;" onchange="this.form.submit()">
-							<option value="-1">Select Route</option>
-					<?php 	$sql = "SELECT DISTINCT LINE_ID,ROUTE_NAME,DIRECTION FROM TRANSIT_INFO
-								ORDER BY LINE_ID ASC, DIRECTION ASC;";
-							$result = mysqli_query($con,$sql);
-							while($row = mysqli_fetch_array($result)) {
-						 		if( ($QUERY_ROUTE || $QUERY_START_ID || $QUERY_END_ID) && $row['LINE_ID']==$line_id && $row['DIRECTION']==$direction) { ?>
-									<option value="<?php echo $row['LINE_ID']."_".$row['DIRECTION']; ?>" selected><?php echo $row['LINE_ID']." - ".$row['ROUTE_NAME']." (".$row['DIRECTION'].")"; ?></option>
-					<?php  		} else { ?>
-									<option value="<?php echo $row['LINE_ID']."_".$row['DIRECTION']; ?>"><?php echo $row['LINE_ID']." - ".$row['ROUTE_NAME']." (".$row['DIRECTION'].")"; ?></option>
-					<?php  		}
-						  	} ?>
-								</select>
-							</form>
-
-							<form class="form-horizontal" role="form" id="route" method="get" action="index.php">
-					<?php 	$sql = "SELECT DISTINCT STOP_ID,STOP_NAME FROM TRANSIT_INFO
-									WHERE LINE_ID=".$line_id." AND DIRECTION='".$direction."'
-									ORDER BY STOP_NAME ASC;";
-							if ($QUERY_START_ID || $QUERY_END_ID) { ?>
-								<select name="route" style="width:100%;height:33px;" onchange="this.form.submit()">
-								<option value="-1">Select Start</option>
-					<?php		$result = mysqli_query($con,$sql);
-								while($row = mysqli_fetch_array($result)) { 
-									if ($row['STOP_ID']==$start_id) { ?>
-									<option value="<?php echo $line_id."_".$direction."_".$row['STOP_ID']; ?>" selected><?php echo "(".$row['STOP_ID'].") ".$row['STOP_NAME']; ?></option>
-					<?php 			} else { ?>
-										<option value="<?php echo $line_id."_".$direction."_".$row['STOP_ID']; ?>"><?php echo "(".$row['STOP_ID'].") ".$row['STOP_NAME']; ?></option>
-					<?php 			}
-								}
-							} elseif($QUERY_ROUTE) { ?>
-								<select name="route" style="width:100%;height:33px;" onchange="this.form.submit()">
-								<option value="-1">Select Start</option>
-					<?php		$result = mysqli_query($con,$sql);
-								while($row = mysqli_fetch_array($result)) { ?>
-									<option value="<?php echo $line_id."_".$direction."_".$row['STOP_ID']; ?>"><?php echo "(".$row['STOP_ID'].") ".$row['STOP_NAME']; ?></option>
-					<?php 		}
-							} else { ?>
-								<select name="route" style="width:100%;height:33px;" disabled>
-									<option value="-1">Select Start</option>
-					<?php 	} ?>
-								</select>
-							</form>
-
-							<form class="form-horizontal" role="form" id="route" method="get" action="index.php">
-					<?php	$sql = "SELECT DISTINCT STOP_ID,STOP_NAME FROM TRANSIT_INFO
-									WHERE LINE_ID=".$line_id." AND DIRECTION='".$direction."' AND STOP_ID<>".$start_id."
-									ORDER BY STOP_NAME ASC;";
-							if ($QUERY_END_ID || $START_ROUTE) { ?>
-								<select name="route" style="width:100%;height:33px;" onchange="this.form.submit()">
-								<option value="-1">Select Start</option>
-					<?php		$result = mysqli_query($con,$sql);
-								while($row = mysqli_fetch_array($result)) { 
-									if ($row['STOP_ID']==$end_id) { ?>
-									<option value="<?php echo $line_id."_".$direction."_".$start_id."_".$row['STOP_ID']."_START"; ?>" selected><?php echo "(".$row['STOP_ID'].") ".$row['STOP_NAME']; ?></option>
-					<?php 			} else { ?>
-										<option value="<?php echo $line_id."_".$direction."_".$start_id."_".$row['STOP_ID']."_START"; ?>"><?php echo "(".$row['STOP_ID'].") ".$row['STOP_NAME']; ?></option>
-					<?php 			}
-								}
-							} elseif($QUERY_START_ID) { ?>
-								<select name="route" style="width:100%;height:33px;" onchange="this.form.submit()">
-								<option value="-1">Select Start</option>
-					<?php		$result = mysqli_query($con,$sql);
-								while($row = mysqli_fetch_array($result)) { ?>
-									<option value="<?php echo $line_id."_".$direction."_".$start_id."_".$row['STOP_ID']."_START"; ?>"><?php echo "(".$row['STOP_ID'].") ".$row['STOP_NAME']; ?></option>
-					<?php 		}
-							} else { ?>
-								<select name="route" style="width:100%;height:33px;" disabled>
-									<option value="-1">Select Start</option>
-					<?php 	} ?>
-								</select>
-							</form>
-
-					<?php 	if($START_ROUTE) { ?>
+			<div class="panel-heading">
+				<!--div class="container"-->
+					<ul class="nav nav-tabs" >
+						<li class="active" style="width: 50%;font-size:auto;"><a data-toggle="tab" href="#signindiv"><span class="glyphicon glyphicon-circle-arrow-right"></span>&nbsp;&nbsp;Sign in</a></li>
+						<li style="width: 50%;font-size:auto;"><a data-toggle="tab" href="#registerdiv"><span class="glyphicon glyphicon-plus-sign"></span>&nbsp;&nbsp;&nbsp;Register</a></li>
+					</ul>
+				<!--/div-->
+			</div>
+			
+			<div class="panel-body">
+			<div class="tab-content">
+			
+				<div id="signindiv" class="tab-pane fade in active">
+				<form class="form-horizontal" role="form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" autocomplete="off">
 					
-								<input type="text" id="line_id_0" value="<?php echo $line_id; ?>" hidden>
-								<input type="text" id="stop_id_start_0" value="<?php echo $start_id; ?>" hidden>
-								<input type="text" id="stop_id_end_0" value="<?php echo $end_id; ?>" hidden>
-								<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_0" value="<?php echo $start_id; ?>"><strong><?php echo $start_id." -> ".$end_id; ?></strong></button>
-								<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_0">EXIT</button>
+			<?php 	if ( isset($errMSG_A) ) { ?>
+					<div class="form-group">
+						<div class="col-sm-12">
+						<div class="alert alert-danger">
+    						<span class="glyphicon glyphicon-info-sign"></span> <?php echo $errMSG_A; ?>
+                		</div>
+                		</div>
+	               	</div>
+	        <?php 	} ?>
 
-								<script>
-									$(function() {
-										$('#get_stop_monitoring_0').click();
-										// $('#get_stop_monitoring_0').one('click', function() {});
-									});
-								</script>
-
-					<?php		$sql = "SELECT * FROM USER_FAVORITES
-										WHERE USER_ID=".$USER_ID." AND STOP_ID_START=".$start_id." AND STOP_ID_END=".$end_id.";";
-								$result = mysqli_query($con,$sql);
-								if (mysqli_num_rows($result) == 0) { ?>
-									<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="insert_favorite_route_0">Add Route To Favorites</button>
-					<?php		} else { ?>
-									<button class="btn btn-primary" style="display: block; width: 100%;font-size:auto" id="insert_favorite_route_0" disabled>Add Route To Favorites</button>
-					<?php 		}
-							} ?>
-
-							<form class="form-horizontal" role="form">
-								<select name="select_line_id" id="select_line_id" style="width:100%;height:33px;">
-								<option value="-1">Select Route</option>
-								<option value="2">Line ID = ?</option>
-								</select>
-							</form>
-
-							<div class="select_stop_id_start">
-							<form class="form-horizontal" role="form">
-								<select name="select_stop_id_start" id="select_stop_id_start" style="width:100%;height:33px;" disabled>
-								<option value="-1">Select Start</option>
-								<option value="2">Start ID = ?</option>
-								</select>
-							</form>
+					<div class="form-group usernameDiv">
+						<div class="col-sm-12">
+							<div class="input-group">
+							<span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
+							<input type="text" name="email" class="form-control" id="inputUsername" placeholder="Email&#42;" />
 							</div>
-
-							<div class="select_stop_id_end">
-							<form class="form-horizontal" role="form">
-								<select name="select_stop_id_end" id="select_stop_id_end" style="width:100%;height:33px;" disabled>
-								<option value="-1">Select End</option>
-								<option value="2">End ID = ?</option>
-								</select>
-							</form>
-							</div>
-
-							<div class="select_live_eta"></div>
-
-								<!-- <button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto;" ng-click="signinsubmit();"><strong>Route</strong></button> -->
-						
-								<!-- <div class="btn-group"> -->
-								  <!-- <button type="button" class="btn btn-success">Route Now!</button> -->
-								  <!-- <button type="button" class="btn btn-primary">Add as Route1</button>
-								  <button type="button" class="btn btn-primary">Add as Route2</button>
-								  <button type="button" class="btn btn-primary">Add as Route3</button>
-								  <button type="button" class="btn btn-primary">Add as Route4</button> -->
-								<!-- </div> -->
-							</div>
+							<span class="text-danger"><?php echo $emailError; ?></span>
 						</div>
-
-					</div> <!--INNER PANEL BODY-->	
-
-				</div><!--panel panel-default-->
-		</div> 
-		
-		<div class="col-sm-4" > 
-			<div class="panel panel-warning">
-				<div class="panel-heading" style="font-size:150%;">
-					<strong>FAVORITE ROUTES</strong>
-				</div>
-				<div class="panel-body" style="height:180px"> <!--INNER PANEL BODY-->
-					<div class="col-sm-12">
-
-			<?php 	$sql = "SELECT UF.*,TI.*
-							FROM USER_FAVORITES AS UF
-							LEFT JOIN TRANSIT_INFO AS TI
-							ON UF.STOP_ID_START=TI.STOP_ID
-							WHERE UF.USER_ID=$USER_ID ORDER BY UF.PRIORITY ASC;";
-					$result = mysqli_query($con,$sql);
-					$j = 0;
-					while($row = mysqli_fetch_array($result)) {
-						$j++; ?>
-
-						<input type="text" id="favorites_id_<?php echo $j; ?>" value="<?php echo $row['FAVORITES_ID']; ?>" hidden>
-						<input type="text" id="line_id_<?php echo $j; ?>" value="<?php echo $row['LINE_ID']; ?>" hidden>
-						<input type="text" id="stop_id_start_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>" hidden>
-						<input type="text" id="stop_id_end_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_END']; ?>" hidden>
-						<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
-						<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_<?php echo $j; ?>">EXIT</button>
-
-			<?php 	}
-					for ($i = $j; $i < 4; $i++) { ?>
-				 		<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" value="-1"><strong>EMPTY</strong></button>
-			<?php 	} ?>
-
 					</div>
-				</div> <!--INNER PANEL BODY-->
-
-			</div><!--panel panel-default-->
-		</div>
-		
-		<div class="col-sm-2"> </div>
-	</div> <!--FIRST ROW -->
-	
-	<div class="row"> <!-- SECOND ROW -->
-		<div class="col-sm-2"> </div> 
-	
-		<div class="col-sm-8" >
-			<div class="panel panel-primary">
-				<div class="panel-heading" style="font-size:150%;">
-					<strong>LIVE ETA</strong>
-				</div>
-				<div class="panel-body"> <!--INNER PANEL BODY-->
 					
-					<text class="col-sm-12" style="font-size:150%;" id="arrival_time_1">&nbsp;</text>
-					<text class="col-sm-12" style="font-size:150%;" id="arrival_time_2">&nbsp;</text>
-					<text class="col-sm-12" style="font-size:150%;" id="arrival_time_3">&nbsp;</text>
-					<div class="col-sm-12" style="font-size:150%;"><span id="json_result">&nbsp;</span></div>
-
-					<!--<div class="col-sm-12" style="font-size:150%;">Source: Alameda</div>
-					<div class="col-sm-12" style="font-size:150%;">Destination: San Jose</div>
-					<div class="col-sm-12" style="font-size:150%;">Next Bus @: 3:21pm</div>
-					<div class="col-sm-12" style="font-size:150%;">ETA: 3minutes</div>
-					<div class="col-sm-12" style="font-size:150%;">Next Bus @: 3:21pm</div>
-					<div class="col-sm-12" style="font-size:150%;">Next Bus @: 3:21pm</div-->
-				</div> <!--INNER PANEL BODY-->	
-
-			</div><!--panel panel-default-->
-		</div> 
-	
-		<div class="col-sm-2"> </div> 
-	</div> <!--SECOND ROW -->
+					<div class="form-group usernameDiv">
+						<div class="col-sm-12">
+							<div class="input-group">
+                			<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+							<input type="password" name="pass" class="form-control" id="inputsignPassword" placeholder="Password&#42;" />
+							</div>
+							<span class="text-danger"><?php echo $passError; ?></span>
+						</div>
+					</div>
+					
+					<div class="form-group ">
+						<div class="col-sm-12">
+							<button type="submit" class="btn btn-block btn-primary" name="btn-login" style="display: block; width: 100%;font-size:auto;"><strong>Sign in</strong></button>
+						</div>
+					</div>
+					
+				</form>
+				</div>
+			
+				<div id="registerdiv" class="tab-pane fade">
+				<form class="form-horizontal" role="form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" autocomplete="off">
+					
+			<?php 	if ( isset($errMSG_B) ) { ?>
+    				<div class="form-group">
+	             		<div class="alert alert-<?php echo ($errTyp=="success") ? "success" : $errTyp; ?>">
+	    					<span class="glyphicon glyphicon-info-sign"></span> <?php echo $errMSG_B; ?>
+	                	</div>
+             		</div>
+			<?php 	} ?>
+					<div class="form-group">
+						<div class="col-sm-12">
+							<div class="input-group">
+                			<span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
+							<input type="email" name="email" class="form-control" id="inputEmail" placeholder="Email&#42;" />
+							</div>
+							<span class="text-danger"><?php echo $emailError; ?></span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="col-sm-12">
+							<div class="input-group">
+                			<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+							<input type="password" name="pass" class="form-control" id="inputregPassword" placeholder="Password&#42;" />
+							</div>
+							<span class="text-danger"><?php echo $passError; ?></span>
+						</div>
+					</div>
+											
+					<div class="form-group">
+						<div class="col-sm-12">
+							<div class="input-group">
+                			<span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+							<input type="text" name="fname" class="form-control" id="inputFN" placeholder="First name&#42;" style="font-size:auto;width:100%;" />
+							</div>
+							<span class="text-danger"><?php echo $nameError; ?></span>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="col-sm-12">
+							<button type="submit" class="btn btn-block btn-primary" name="btn-signup" style="display: block; width: 100%;font-size:auto"><strong>Register</strong></button>
+						</div>
+					</div>
+					
+				</form>
+				</div>
+			
+			</div> <!--tab-content div-->			
+			</div> <!--panelbody-->
+			
+		</div> <!--panel panel-->
+    
+	</div> <!--main column-->	
+	</div> <!--main row-->
 
 </body>
 </html>
+<?php ob_end_flush(); ?>

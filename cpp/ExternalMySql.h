@@ -9,6 +9,8 @@ class TrablrMySql {
         TrablrMySql();
         ~TrablrMySql();
         void getSelectStopIdStart(struct mg_connection *nc, struct http_message *hm);
+        void getSelectStopIdEnd(struct mg_connection *nc, struct http_message *hm);
+        void checkFavoriteRoute(struct mg_connection *nc, struct http_message *hm);
         void insertFavoriteRoute(struct mg_connection *nc, struct http_message *hm);
         void updateFavoriteRouteUsage(struct mg_connection *nc, struct http_message *hm);
         void deleteFavoriteRoute(struct mg_connection *nc, struct http_message *hm);

@@ -75,6 +75,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
                     TrablrMySql trablrmysql;
                     trablrmysql.getSelectStopIdStart(nc, hm);
                 }
+                else if (mg_vcmp(&key, "/get_select_stop_id_end") == 0) {
+                    printf("/get_select_stop_id_end\n");
+                    TrablrMySql trablrmysql;
+                    trablrmysql.getSelectStopIdEnd(nc, hm);
+                }
+                else if (mg_vcmp(&key, "/check_favorite_route") == 0) {
+                    printf("/check_favorite_route\n");
+                    TrablrMySql trablrmysql;
+                    trablrmysql.checkFavoriteRoute(nc, hm);
+                }
                 else if (mg_vcmp(&key, "/insert_favorite_route") == 0) {
                     printf("/insert_favorite_route\n");
                     TrablrMySql trablrmysql;
