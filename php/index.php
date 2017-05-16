@@ -10,11 +10,13 @@ if (isset($_SESSION['USER_ID']) != "") {
 }
 
 $error = false;
-$emailError = false;
-$passError = false;
+$emailLoginError = false;
+$emailRegisterError = false;
+$passLoginError = false;
+$passRegisterError = false;
 $nameError = false;
 
-if( isset($_POST['btn-login']) ) { 
+if( isset($_POST['btn-login']) ) {
 	// prevent sql injections/ clear user invalid inputs
 	$email = trim($_POST['email']);
 	$email = strip_tags($email);
@@ -27,15 +29,15 @@ if( isset($_POST['btn-login']) ) {
 
 	if (empty($email)) {
 		$error = true;
-		$emailError = "Please enter your email address.";
+		$emailLoginError = "Please enter your email address.";
 	} else if ( !filter_var($email,FILTER_VALIDATE_EMAIL) ) {
 		$error = true;
-		$emailError = "Please enter valid email address.";
+		$emailLoginError = "Please enter valid email address.";
 	}
 
 	if (empty($pass)) {
 		$error = true;
-		$passError = "Please enter your password.";
+		$passLoginError = "Please enter your password.";
 	}
 
 	// if there's no error, continue to login
@@ -82,7 +84,7 @@ if( isset($_POST['btn-login']) ) {
 	//basic email validation
 	if ( !filter_var($email,FILTER_VALIDATE_EMAIL) ) {
 		$error = true;
-		$emailError = "Please enter valid email address.";
+		$emailRegisterError = "Please enter valid email address.";
 	} else {
 		// check email exist or not
 		$query = "SELECT EMAIL FROM USER_INFO WHERE EMAIL='$email'";
@@ -90,16 +92,16 @@ if( isset($_POST['btn-login']) ) {
 		$count = mysqli_num_rows($result);
 		if ($count!=0) {
 			$error = true;
-			$emailError = "Provided Email is already in use.";
+			$emailRegisterError = "Provided Email is already in use.";
 		}
 	}
 	// password validation
 	if (empty($pass)){
 		$error = true;
-		$passError = "Please enter password.";
+		$passRegisterError = "Please enter password.";
 	} else if(strlen($pass) < 6) {
 		$error = true;
-		$passError = "Password must have atleast 6 characters.";
+		$passRegisterError = "Password must have atleast 6 characters.";
 	}
 
 	// password encrypt using SHA256();
@@ -136,6 +138,11 @@ if( isset($_POST['btn-login']) ) {
 	<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+	<script type="text/javascript">
+		function activeTab(tab){
+			$('.nav-tabs a[href="#' + tab + '"]').tab('show');
+		};
+	</script>
 </head>
 
 <body>
@@ -184,7 +191,7 @@ if( isset($_POST['btn-login']) ) {
 							<span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
 							<input type="text" name="email" class="form-control" id="inputUsername" placeholder="Email&#42;" />
 							</div>
-							<span class="text-danger"><?php echo $emailError; ?></span>
+							<span class="text-danger"><?php echo $emailLoginError; ?></span>
 						</div>
 					</div>
 					
@@ -194,7 +201,7 @@ if( isset($_POST['btn-login']) ) {
                 			<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
 							<input type="password" name="pass" class="form-control" id="inputsignPassword" placeholder="Password&#42;" />
 							</div>
-							<span class="text-danger"><?php echo $passError; ?></span>
+							<span class="text-danger"><?php echo $passLoginError; ?></span>
 						</div>
 					</div>
 					
@@ -223,7 +230,7 @@ if( isset($_POST['btn-login']) ) {
                 			<span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
 							<input type="email" name="email" class="form-control" id="inputEmail" placeholder="Email&#42;" />
 							</div>
-							<span class="text-danger"><?php echo $emailError; ?></span>
+							<span class="text-danger"><?php echo $emailRegisterError; ?></span>
 						</div>
 					</div>
 					
@@ -233,7 +240,7 @@ if( isset($_POST['btn-login']) ) {
                 			<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
 							<input type="password" name="pass" class="form-control" id="inputregPassword" placeholder="Password&#42;" />
 							</div>
-							<span class="text-danger"><?php echo $passError; ?></span>
+							<span class="text-danger"><?php echo $passRegisterError; ?></span>
 						</div>
 					</div>
 											
@@ -263,7 +270,15 @@ if( isset($_POST['btn-login']) ) {
     
 	</div> <!--main column-->	
 	</div> <!--main row-->
-
+<?php 	if( isset($_POST['btn-login']) ) { ?>
+			<script type="text/javascript">
+				activeTab('signindiv');
+			</script>
+<?php 	} else if ( isset($_POST['btn-signup']) ) { ?>
+			<script type="text/javascript">
+				activeTab('registerdiv');
+			</script>
+<?php 	} ?>
 </body>
 </html>
 <?php ob_end_flush(); ?>

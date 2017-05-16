@@ -127,7 +127,7 @@ if ( !isset($_SESSION['USER_ID']) ) {
 
 			<?php 	}
 					for ($i = $j; $i < 4; $i++) { ?>
-				 		<button  class="btn btn-warning" style="display: block; width: 100%;font-size:auto" value="-1"><strong>EMPTY</strong></button>
+				 		<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" value="-1"><strong>EMPTY</strong></button>
 			<?php 	} ?>
 
 					</div>
@@ -170,6 +170,19 @@ if ( !isset($_SESSION['USER_ID']) ) {
 	
 		<div class="col-sm-2"> </div> 
 	</div> <!--SECOND ROW -->
+
+	<div class="row"> <!--THIRD ROW -->
+		<div class="col-sm-2"> </div>
+			<div class="col-sm-8">
+				<div class="panel-body" align="center">
+					<form class="form-horizontal" role="form" id="logout" method="get" action="/logout.php">
+						<input type="text" name="logout" value="1" hidden>
+					</form>
+					<button type="submit" class="btn btn-success" form="logout">LOGOUT</button>
+				</div>
+			</div>
+		<div class="col-sm-2"> </div>
+	</div> <!--THIRD ROW -->
 
 </body>
 </html>
