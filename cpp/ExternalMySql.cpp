@@ -35,16 +35,16 @@ TrablrMySql::~TrablrMySql(void)
 	delete con;
 }
 
-void TrablrMySql::getSelectStopIdStart(struct mg_connection *nc, struct http_message *hm)
+void TrablrMySql::getSelectTransitIdStart(struct mg_connection *nc, struct http_message *hm)
 {
 	string json_result = "{\"test\":\"0\"}";
-	string statement = "";
+	string statement = "", transit_id = "", stop_id = "";
 	char line_id[11], direction[11];
     mg_get_http_var(&hm->body, "line_id", line_id, sizeof(line_id));
     mg_get_http_var(&hm->body, "direction", direction, sizeof(direction));
 
 	try {
-		statement = "SELECT DISTINCT STOP_ID,STOP_NAME FROM TRANSIT_INFO WHERE LINE_ID=";
+		statement = "SELECT TRANSIT_ID,STOP_ID,STOP_NAME FROM TRANSIT_INFO WHERE LINE_ID=";
 		statement.append(line_id);
 		statement += " AND DIRECTION='";
 		statement.append(direction);
@@ -55,10 +55,14 @@ void TrablrMySql::getSelectStopIdStart(struct mg_connection *nc, struct http_mes
         json_result = "{\"SelectStopStartArray\":[";
 		while (res->next()) {
 			ss.str("");
+			ss << res->getInt("TRANSIT_ID");
+			transit_id = ss.str();
+			ss.str("");
 			ss << res->getInt("STOP_ID");
+			stop_id = ss.str();
 			if (count > 0)
 				json_result += ",";
-			json_result += "{\"STOP_ID\":\"" + ss.str() + "\",\"STOP_NAME\":\"" + res->getString("STOP_NAME") + "\"}";
+			json_result += "{\"TRANSIT_ID\":\"" + transit_id + "\",\"STOP_ID\":\"" + stop_id + "\",\"STOP_NAME\":\"" + res->getString("STOP_NAME") + "\"}";
 			count++;
 		}
 		json_result += "]}";
@@ -79,22 +83,22 @@ void TrablrMySql::getSelectStopIdStart(struct mg_connection *nc, struct http_mes
     mg_send_http_chunk(nc, "", 0);
 }
 
-void TrablrMySql::getSelectStopIdEnd(struct mg_connection *nc, struct http_message *hm)
+void TrablrMySql::getSelectTransitIdEnd(struct mg_connection *nc, struct http_message *hm)
 {
 	string json_result = "{\"test\":0}";
-	string statement = "";
-	char line_id[11], direction[11], stop_id_start[11];
+	string statement = "", transit_id = "", stop_id = "";
+	char line_id[11], direction[11], transit_id_start[11];
     mg_get_http_var(&hm->body, "line_id", line_id, sizeof(line_id));
     mg_get_http_var(&hm->body, "direction", direction, sizeof(direction));
-    mg_get_http_var(&hm->body, "stop_id_start", stop_id_start, sizeof(stop_id_start));
+    mg_get_http_var(&hm->body, "transit_id_start", transit_id_start, sizeof(transit_id_start));
 
 	try {
-		statement = "SELECT DISTINCT STOP_ID,STOP_NAME FROM TRANSIT_INFO WHERE LINE_ID=";
+		statement = "SELECT TRANSIT_ID,STOP_ID,STOP_NAME FROM TRANSIT_INFO WHERE LINE_ID=";
 		statement.append(line_id);
 		statement += " AND DIRECTION='";
 		statement.append(direction);
-		statement += "' AND STOP_ID<>";
-		statement.append(stop_id_start);
+		statement += "' AND TRANSIT_ID<>";
+		statement.append(transit_id_start);
 		statement += " ORDER BY STOP_NAME ASC";
         res = stmt->executeQuery(statement);
         stringstream ss;
@@ -102,10 +106,14 @@ void TrablrMySql::getSelectStopIdEnd(struct mg_connection *nc, struct http_messa
         json_result = "{\"SelectStopEndArray\":[";
 		while (res->next()) {
 			ss.str("");
+			ss << res->getInt("TRANSIT_ID");
+			transit_id = ss.str();
+			ss.str("");
 			ss << res->getInt("STOP_ID");
+			stop_id = ss.str();
 			if (count > 0)
 				json_result += ",";
-			json_result += "{\"STOP_ID\":\"" + ss.str() + "\",\"STOP_NAME\":\"" + res->getString("STOP_NAME") + "\"}";
+			json_result += "{\"TRANSIT_ID\":\"" + transit_id + "\",\"STOP_ID\":\"" + stop_id + "\",\"STOP_NAME\":\"" + res->getString("STOP_NAME") + "\"}";
 			count++;
 		}
 		json_result += "]}";
@@ -131,18 +139,18 @@ void TrablrMySql::checkFavoriteRoute(struct mg_connection *nc, struct http_messa
 	string json_result = "{\"test\":0}";
 	string statement = "";
 	int favorites_count = 0;
-	char user_id[11], stop_id_start[11], stop_id_end[11];
+	char user_id[11], transit_id_start[11], transit_id_end[11];
     mg_get_http_var(&hm->body, "user_id", user_id, sizeof(user_id));
-    mg_get_http_var(&hm->body, "stop_id_start", stop_id_start, sizeof(stop_id_start));
-    mg_get_http_var(&hm->body, "stop_id_end", stop_id_end, sizeof(stop_id_end));
+    mg_get_http_var(&hm->body, "transit_id_start", transit_id_start, sizeof(transit_id_start));
+    mg_get_http_var(&hm->body, "transit_id_end", transit_id_end, sizeof(transit_id_end));
 
 	try {
 		statement = "SELECT COUNT(*) as favorites_count FROM USER_FAVORITES WHERE USER_ID=";
 		statement.append(user_id);
-		statement += " AND STOP_ID_START=";
-		statement.append(stop_id_start);
-		statement += " AND STOP_ID_END=";
-		statement.append(stop_id_end);
+		statement += " AND TRANSIT_ID_START=";
+		statement.append(transit_id_start);
+		statement += " AND TRANSIT_ID_END=";
+		statement.append(transit_id_end);
 		cout << statement << endl;
         res = stmt->executeQuery(statement);
 		while (res->next()) {
@@ -202,13 +210,13 @@ void TrablrMySql::insertFavoriteRoute(struct mg_connection *nc, struct http_mess
 	string json_result = "{\"test\":0}";
 	string statement = "";
 	int favorites_count = 0;
-	char user_id[11], stop_id_start[11], stop_id_end[11];
+	char user_id[11], transit_id_start[11], transit_id_end[11];
 	mg_get_http_var(&hm->body, "user_id", user_id, sizeof(user_id));
-    mg_get_http_var(&hm->body, "stop_id_start", stop_id_start, sizeof(stop_id_start));
-    mg_get_http_var(&hm->body, "stop_id_end", stop_id_end, sizeof(stop_id_end));
+    mg_get_http_var(&hm->body, "transit_id_start", transit_id_start, sizeof(transit_id_start));
+    mg_get_http_var(&hm->body, "transit_id_end", transit_id_end, sizeof(transit_id_end));
 
 	try {
-		statement = "SELECT *,COUNT(*) as favorites_count FROM USER_FAVORITES WHERE USER_ID=";
+		statement = "SELECT COUNT(*) as favorites_count FROM USER_FAVORITES WHERE USER_ID=";
 		statement.append(user_id);
 		res = stmt->executeQuery(statement);
 		while (res->next()) {
@@ -218,12 +226,12 @@ void TrablrMySql::insertFavoriteRoute(struct mg_connection *nc, struct http_mess
 
 		statement.clear();
 		if (favorites_count < 4) {
-			statement = "INSERT INTO USER_FAVORITES (USER_ID,STOP_ID_START,STOP_ID_END,PRIORITY) VALUES (";
+			statement = "INSERT INTO USER_FAVORITES (USER_ID,TRANSIT_ID_START,TRANSIT_ID_END,PRIORITY) VALUES (";
 			statement.append(user_id);
 			statement += ",";
-			statement.append(stop_id_start);
+			statement.append(transit_id_start);
 			statement += ",";
-			statement.append(stop_id_end);
+			statement.append(transit_id_end);
 			statement += ",";
 			favorites_count += 1;
 			stringstream ss;

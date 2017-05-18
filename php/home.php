@@ -63,18 +63,18 @@ if ( !isset($_SESSION['USER_ID']) ) {
 								</select>
 							</form>
 
-							<div class="select_stop_id_start">
+							<div class="select_transit_id_start">
 							<form class="form-horizontal" role="form">
-								<select name="select_stop_id_start" id="select_stop_id_start" style="width:100%;height:33px;" disabled>
+								<select name="select_transit_id_start" id="select_transit_id_start" style="width:100%;height:33px;" disabled>
 								<option value="-1">Select Start</option>
 								<option value="2">Start ID = ?</option>
 								</select>
 							</form>
 							</div>
 
-							<div class="select_stop_id_end">
+							<div class="select_transit_id_end">
 							<form class="form-horizontal" role="form">
-								<select name="select_stop_id_end" id="select_stop_id_end" style="width:100%;height:33px;" disabled>
+								<select name="select_transit_id_end" id="select_transit_id_end" style="width:100%;height:33px;" disabled>
 								<option value="-1">Select End</option>
 								<option value="2">End ID = ?</option>
 								</select>
@@ -105,13 +105,20 @@ if ( !isset($_SESSION['USER_ID']) ) {
 				<div class="panel-heading" style="font-size:150%;">
 					<strong>FAVORITE ROUTES</strong>
 				</div>
-				<div class="panel-body" style="height:180px"> <!--INNER PANEL BODY-->
+				<div class="panel-body" style="height:100%"> <!--INNER PANEL BODY-->
 					<div class="col-sm-12">
 
-			<?php 	$sql = "SELECT UF.*,TI.*
+			<?php 	$sql = "SELECT UF.*,
+							TI.LINE_ID,TI.ROUTE_NAME,TI.DIRECTION,TI.AGENCY_NAME,
+							TI_S.STOP_ID as STOP_ID_START,TI_S.STOP_NAME as STOP_NAME_START,
+							TI_E.STOP_ID as STOP_ID_END,TI_E.STOP_NAME as STOP_NAME_END
 							FROM USER_FAVORITES AS UF
 							LEFT JOIN TRANSIT_INFO AS TI
-							ON UF.STOP_ID_START=TI.STOP_ID
+								ON UF.TRANSIT_ID_END=TI.TRANSIT_ID
+							LEFT JOIN TRANSIT_INFO AS TI_S
+								ON UF.TRANSIT_ID_START=TI_S.TRANSIT_ID
+							LEFT JOIN TRANSIT_INFO AS TI_E
+								ON UF.TRANSIT_ID_END=TI_E.TRANSIT_ID
 							WHERE UF.USER_ID=$USER_ID ORDER BY UF.PRIORITY ASC;";
 					$result = mysqli_query($con,$sql);
 					$j = 0;
@@ -120,9 +127,11 @@ if ( !isset($_SESSION['USER_ID']) ) {
 
 						<input type="text" id="favorites_id_<?php echo $j; ?>" value="<?php echo $row['FAVORITES_ID']; ?>" hidden>
 						<input type="text" id="line_id_<?php echo $j; ?>" value="<?php echo $row['LINE_ID']; ?>" hidden>
+						<input type="text" id="transit_id_start_<?php echo $j; ?>" value="<?php echo $row['TRANSIT_ID_START']; ?>" hidden>
 						<input type="text" id="stop_id_start_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>" hidden>
+						<input type="text" id="transit_id_end_<?php echo $j; ?>" value="<?php echo $row['TRANSIT_ID_END']; ?>" hidden>
 						<input type="text" id="stop_id_end_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_END']; ?>" hidden>
-						<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>"><strong><?php echo $row['STOP_ID_START']." -> ".$row['STOP_ID_END']; ?></strong></button>
+						<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="get_stop_monitoring_<?php echo $j; ?>" value="<?php echo $row['STOP_ID_START']; ?>"><strong style="font-size:80%;white-space:normal;"><?php echo $row['STOP_NAME_START']." -> ".$row['STOP_NAME_END']; ?></strong></button>
 						<button class="btn btn-warning" style="display: block; width: 100%;font-size:auto" id="exit_<?php echo $j; ?>">EXIT</button>
 
 			<?php 	}

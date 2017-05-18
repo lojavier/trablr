@@ -8,8 +8,8 @@ class TrablrMySql {
     public:
         TrablrMySql();
         ~TrablrMySql();
-        void getSelectStopIdStart(struct mg_connection *nc, struct http_message *hm);
-        void getSelectStopIdEnd(struct mg_connection *nc, struct http_message *hm);
+        void getSelectTransitIdStart(struct mg_connection *nc, struct http_message *hm);
+        void getSelectTransitIdEnd(struct mg_connection *nc, struct http_message *hm);
         void checkFavoriteRoute(struct mg_connection *nc, struct http_message *hm);
         void insertFavoriteRoute(struct mg_connection *nc, struct http_message *hm);
         void updateFavoriteRouteUsage(struct mg_connection *nc, struct http_message *hm);
