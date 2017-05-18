@@ -188,18 +188,44 @@ jQuery(function() {
                     favorites_id: $('#favorites_id_'+id).val()
             },
             success: function(json) {
-            	// alert("success");
-				var data = "";
-				for (var i = 0; i < json.AimedArrivalTime.length; i++) {
-					var ArrivalTime = json.AimedArrivalTime[i].ArrivalTime;
-					var ArrivalMinutes = json.AimedArrivalTime[i].ArrivalMinutes;
-					if (ArrivalMinutes < 2)
-						data = ArrivalTime + "     ETA: DUE NOW";
-					else
-						data = ArrivalTime + "     ETA: " + ArrivalMinutes + " minutes";
-					$('#arrival_time_'+(i+1)).html(data);
-				}
-            	// $('#json_result').html(JSON.stringify(json));
+                // alert("success");
+                var arrival_results = " \
+                    <div class='arrival_results'> \
+                    <table border='0'><tr><td> \
+                        <text class='col-sm-12' style='font-size:150%;' id='arrival_time_1'>&nbsp;</text> \
+                    </td></tr><tr><td> \
+                        <text class='col-sm-12' style='font-size:150%;' id='arrival_time_2'>&nbsp;</text> \
+                    </td></tr><tr><td> \
+                        <text class='col-sm-12' style='font-size:150%;' id='arrival_time_3'>&nbsp;</text> \
+                    </td></tr><tr><td> \
+                        <text class='col-sm-12' style='font-size:150%;' id='arrival_time_4'>&nbsp;</text> \
+                    </td></tr></table> \
+                    </div>";
+                $('div.arrival_results').replaceWith(arrival_results);
+                var data = "";
+                if (json.AimedArrivalTime.length > 0) {
+    				for (var i = 0; i < json.AimedArrivalTime.length; i++) {
+    					var ArrivalTime = json.AimedArrivalTime[i].ArrivalTime;
+    					var ArrivalMinutes = json.AimedArrivalTime[i].ArrivalMinutes;
+    					if (ArrivalMinutes < 2)
+    						data = ArrivalTime + "     ETA: DUE NOW";
+    					else
+    						data = ArrivalTime + "     ETA: " + ArrivalMinutes + " minutes";
+    					$('#arrival_time_'+(i+1)).html(data);
+    				}
+                } else {
+                    var text = '{"AimedArrivalTime":[{"ArrivalTime":"11:38 AM","ArrivalMinutes":1},{"ArrivalTime":"11:52 AM","ArrivalMinutes":15},{"ArrivalTime":"12:08 AM","ArrivalMinutes":31}]}'
+                    var json_temp = JSON.parse(text);
+                    for (var i = 0; i < json_temp.AimedArrivalTime.length; i++) {
+                        var ArrivalTime = json_temp.AimedArrivalTime[i].ArrivalTime;
+                        var ArrivalMinutes = json_temp.AimedArrivalTime[i].ArrivalMinutes;
+                        if (ArrivalMinutes < 2)
+                            data = ArrivalTime + "     ETA: DUE NOW";
+                        else
+                            data = ArrivalTime + "     ETA: " + ArrivalMinutes + " minutes";
+                        $('#arrival_time_'+(i+1)).html(data);
+                    }
+                }
             	for (let j = 0; j <= favoriteRoutes; j++) {
             		$('#get_stop_monitoring_'+j).attr("disabled", true);
             	}

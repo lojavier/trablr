@@ -157,6 +157,7 @@ if ( !isset($_SESSION['USER_ID']) ) {
 					<strong>LIVE ETA</strong>
 				</div>
 				<div class="panel-body"> <!--INNER PANEL BODY-->
+					<div class="arrival_results">
 					<table border="0"><tr><td>
 						<text class="col-sm-12" style="font-size:150%;" id="arrival_time_1">&nbsp;</text>
 					</td></tr><tr><td>
@@ -166,6 +167,7 @@ if ( !isset($_SESSION['USER_ID']) ) {
 					</td></tr><tr><td>
 						<text class="col-sm-12" style="font-size:150%;" id="arrival_time_4">&nbsp;</text>
 					</td></tr></table>
+					</div>
 					<!--<div class="col-sm-12" style="font-size:150%;">Source: Alameda</div>
 					<div class="col-sm-12" style="font-size:150%;">Destination: San Jose</div>
 					<div class="col-sm-12" style="font-size:150%;">Next Bus @: 3:21pm</div>
