@@ -214,7 +214,11 @@ jQuery(function() {
     					$('#arrival_time_'+(i+1)).html(data);
     				}
                 } else {
-                    var text = '{"AimedArrivalTime":[{"ArrivalTime":"11:38 AM","ArrivalMinutes":1},{"ArrivalTime":"11:52 AM","ArrivalMinutes":15},{"ArrivalTime":"12:08 AM","ArrivalMinutes":31}]}'
+                    if(id = 0) {
+                        var text = '{"AimedArrivalTime":[{"ArrivalTime":"11:38 AM","ArrivalMinutes":1},{"ArrivalTime":"11:52 AM","ArrivalMinutes":15},{"ArrivalTime":"12:08 AM","ArrivalMinutes":31}]}'
+                    } else if (id = 1) {
+                        var text = '{"AimedArrivalTime":[{"ArrivalTime":"12:00 AM","ArrivalMinutes":23},{"ArrivalTime":"12:15 AM","ArrivalMinutes":38},{"ArrivalTime":"12:30 AM","ArrivalMinutes":53}]}'
+                    }
                     var json_temp = JSON.parse(text);
                     for (var i = 0; i < json_temp.AimedArrivalTime.length; i++) {
                         var ArrivalTime = json_temp.AimedArrivalTime[i].ArrivalTime;
